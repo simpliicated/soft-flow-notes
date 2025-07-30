@@ -72,7 +72,7 @@ const BrainDump = () => {
   const randomMessage = encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto">
+    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-gradient-to-br from-accent-soft via-background to-accent-soft/50">
       {/* Header */}
       <div className="mb-6 sm:mb-8 pt-2">
         <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2 flex items-center gap-2">

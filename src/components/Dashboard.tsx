@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Brain, Heart, CheckSquare, FileText, ShoppingCart } from 'lucide-react';
+import { Plus, Brain, Heart, CheckSquare, FileText, Target } from 'lucide-react';
+
+interface DashboardProps {
+  onPageChange: (page: string) => void;
+}
 
 const quotes = [
   "Każdy mały krok prowadzi do wielkiej zmiany 🌱",
@@ -11,7 +15,7 @@ const quotes = [
   "Jesteś dokładnie tam, gdzie masz być 🌈",
 ];
 
-const Dashboard = () => {
+const Dashboard = ({ onPageChange }: DashboardProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [todayQuote] = useState(() => quotes[Math.floor(Math.random() * quotes.length)]);
 
@@ -39,11 +43,11 @@ const Dashboard = () => {
   };
 
   const quickActions = [
-    { icon: FileText, label: "Nowa notatka", color: "primary", href: "/notes" },
-    { icon: CheckSquare, label: "Zadania dnia", color: "secondary", href: "/tasks" },
-    { icon: Brain, label: "Brain Dump", color: "accent", href: "/brain-dump" },
-    { icon: Heart, label: "Nastrój", color: "mood", href: "/mood" },
-    { icon: ShoppingCart, label: "Lista zakupów", color: "primary", href: "/shopping" },
+    { icon: FileText, label: "Nowa notatka", color: "primary", page: "notes" },
+    { icon: CheckSquare, label: "Zadania dnia", color: "secondary", page: "tasks" },
+    { icon: Brain, label: "Brain Dump", color: "accent", page: "brain-dump" },
+    { icon: Heart, label: "Nastrój", color: "mood", page: "mood" },
+    { icon: Target, label: "Nawyki", color: "primary", page: "habits" },
   ];
 
   return (
@@ -85,11 +89,13 @@ const Dashboard = () => {
                 background: action.color === 'primary' ? 'hsl(var(--primary-soft))' :
                            action.color === 'secondary' ? 'hsl(var(--secondary-soft))' :
                            action.color === 'accent' ? 'hsl(var(--accent-soft))' :
+                           action.color === 'mood' ? 'hsl(var(--mood-happy))' :
                            'hsl(var(--primary-soft))'
               }}
+              onClick={() => onPageChange(action.page)}
             >
               <action.icon className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span className="text-xs sm:text-sm font-medium font-space-grotesk leading-tight text-center">
+              <span className="text-xs sm:text-sm font-medium font-poppins leading-tight text-center">
                 {action.label}
               </span>
             </Button>

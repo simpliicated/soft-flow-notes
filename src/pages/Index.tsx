@@ -5,6 +5,7 @@ import Notes from '@/components/Notes';
 import Tasks from '@/components/Tasks';
 import BrainDump from '@/components/BrainDump';
 import MoodTracker from '@/components/MoodTracker';
+import HabitTracker from '@/components/HabitTracker';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -12,7 +13,7 @@ const Index = () => {
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onPageChange={setCurrentPage} />;
       case 'notes':
         return <Notes />;
       case 'tasks':
@@ -21,8 +22,10 @@ const Index = () => {
         return <BrainDump />;
       case 'mood':
         return <MoodTracker />;
+      case 'habits':
+        return <HabitTracker />;
       default:
-        return <Dashboard />;
+        return <Dashboard onPageChange={setCurrentPage} />;
     }
   };
 

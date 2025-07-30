@@ -12,6 +12,7 @@ const navigationItems = [
   { id: 'tasks', label: 'Zadania', icon: Square, emoji: '✅' },
   { id: 'brain-dump', label: 'Brain', icon: Zap, emoji: '💭' },
   { id: 'mood', label: 'Nastrój', icon: Smile, emoji: '🌈' },
+  { id: 'habits', label: 'Nawyki', icon: Smile, emoji: '⭐' },
 ];
 
 const MobileNavigation = ({ currentPage, onPageChange }: MobileNavigationProps) => {
@@ -38,7 +39,7 @@ const MobileNavigation = ({ currentPage, onPageChange }: MobileNavigationProps) 
                 onClick={() => onPageChange(item.id)}
               >
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-lg leading-none">{item.emoji}</span>
+                  <Icon className="h-5 w-5" />
                   <span className="text-xs font-medium font-poppins leading-none">
                     {item.label}
                   </span>
