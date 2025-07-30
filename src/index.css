@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -133,16 +133,20 @@
   }
 
   body {
-    @apply bg-background text-foreground font-poppins;
+    @apply bg-background text-foreground font-dm-sans;
     background: var(--gradient-primary);
     min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-inter;
   }
 }
 
 @layer components {
-  /* Soft card component */
+  /* Mobile-first card component */
   .card-soft {
-    @apply bg-card border border-border/50 rounded-2xl p-6;
+    @apply bg-card border border-border/50 rounded-3xl p-4 sm:p-6;
     box-shadow: var(--shadow-card);
     transition: var(--transition-soft);
   }
@@ -152,15 +156,30 @@
     box-shadow: var(--shadow-soft);
   }
 
-  /* Button variants */
+  /* Mobile touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Safe area for mobile navigation */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Mobile-optimized button variants */
   .btn-soft {
-    @apply px-6 py-3 rounded-xl font-medium;
+    @apply px-4 py-3 sm:px-6 sm:py-3 rounded-2xl font-medium touch-target;
     transition: var(--transition-bounce);
     box-shadow: var(--shadow-button);
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   .btn-soft:hover {
     transform: translateY(-1px);
+  }
+
+  .btn-soft:active {
+    transform: translateY(0) scale(0.98);
   }
 
   .btn-primary-soft {
@@ -192,10 +211,11 @@
   .bg-gradient-accent { background: var(--gradient-accent); }
   .bg-gradient-mood { background: var(--gradient-mood); }
 
-  /* Tag styles */
+  /* Mobile-optimized tag styles */
   .tag {
-    @apply px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-1;
+    @apply px-3 py-2 rounded-2xl text-sm font-medium inline-flex items-center gap-1 touch-target;
     transition: var(--transition-soft);
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   .tag-primary {

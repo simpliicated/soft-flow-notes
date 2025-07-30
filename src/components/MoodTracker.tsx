@@ -101,11 +101,11 @@ const MoodTracker = () => {
   ];
 
   return (
-    <div className="min-h-screen p-4 max-w-4xl mx-auto">
+    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-foreground mb-2 flex items-center gap-2">
-          <Heart className="h-8 w-8 text-primary" />
+      <div className="mb-6 sm:mb-8 pt-2">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2 flex items-center gap-2">
+          <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           Nastrój
         </h1>
         <p className="text-muted-foreground">
@@ -168,19 +168,19 @@ const MoodTracker = () => {
               Wybierz swój nastrój
             </h3>
             
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
               {moodOptions.map((mood) => (
                 <button
                   key={mood.name}
                   onClick={() => setSelectedMood(mood)}
-                  className={`p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                  className={`p-3 sm:p-4 rounded-2xl border-2 transition-all hover:scale-105 touch-target ${
                     selectedMood?.name === mood.name
                       ? 'border-primary ring-2 ring-primary ring-offset-2'
                       : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  <div className="text-4xl mb-2">{mood.emoji}</div>
-                  <p className="text-sm font-medium text-foreground">
+                  <div className="text-3xl sm:text-4xl mb-1 sm:mb-2">{mood.emoji}</div>
+                  <p className="text-xs sm:text-sm font-medium text-foreground font-space-grotesk">
                     {mood.name}
                   </p>
                 </button>

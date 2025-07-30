@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Navigation from '@/components/Navigation';
+import MobileNavigation from '@/components/MobileNavigation';
 import Dashboard from '@/components/Dashboard';
 import Notes from '@/components/Notes';
 import Tasks from '@/components/Tasks';
@@ -28,12 +28,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-primary">
-      <div className="flex">
-        <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
-        <main className="flex-1">
-          {renderCurrentPage()}
-        </main>
-      </div>
+      <main className="pb-20">
+        {renderCurrentPage()}
+      </main>
+      <MobileNavigation currentPage={currentPage} onPageChange={setCurrentPage} />
     </div>
   );
 };

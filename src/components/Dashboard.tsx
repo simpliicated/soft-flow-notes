@@ -47,40 +47,40 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen p-4 max-w-4xl mx-auto">
+    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto">
       {/* Header z pozdrowieniem */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-foreground mb-2">
+      <div className="mb-6 sm:mb-8 pt-2">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2">
           {getGreeting()}
         </h1>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-base sm:text-lg text-muted-foreground">
           {getTimeBasedMessage()}
         </p>
       </div>
 
       {/* Cytat dnia */}
-      <Card className="card-soft bg-gradient-mood mb-8 border-0">
+      <Card className="card-soft bg-gradient-mood mb-6 sm:mb-8 border-0">
         <div className="text-center">
           <h3 className="text-lg font-medium text-foreground mb-2">
             Myśl na dziś
           </h3>
-          <p className="text-xl font-light text-foreground leading-relaxed">
+          <p className="text-lg sm:text-xl font-light text-foreground leading-relaxed">
             {todayQuote}
           </p>
         </div>
       </Card>
 
       {/* Szybkie akcje */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <h2 className="text-xl font-semibold text-foreground mb-4">
           Co dzisiaj robimy? 🚀
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {quickActions.map((action, index) => (
             <Button
               key={index}
               variant="outline"
-              className="h-24 flex-col space-y-2 card-soft border-0 hover:scale-105 transition-transform"
+              className="h-20 sm:h-24 flex-col space-y-1 sm:space-y-2 card-soft border-0 hover:scale-105 transition-transform touch-target"
               style={{
                 background: action.color === 'primary' ? 'hsl(var(--primary-soft))' :
                            action.color === 'secondary' ? 'hsl(var(--secondary-soft))' :
@@ -88,36 +88,38 @@ const Dashboard = () => {
                            'hsl(var(--primary-soft))'
               }}
             >
-              <action.icon className="h-6 w-6" />
-              <span className="text-sm font-medium">{action.label}</span>
+              <action.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+              <span className="text-xs sm:text-sm font-medium font-space-grotesk leading-tight text-center">
+                {action.label}
+              </span>
             </Button>
           ))}
         </div>
       </div>
 
       {/* Dzisiejszy plan - placeholder */}
-      <Card className="card-soft mb-8">
+      <Card className="card-soft mb-6 sm:mb-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-foreground">
             Plan na dziś 📅
           </h3>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className="touch-target">
             <Plus className="h-4 w-4 mr-1" />
             Dodaj
           </Button>
         </div>
         <div className="space-y-3">
           <div className="flex items-center text-muted-foreground">
-            <div className="w-2 h-2 rounded-full bg-secondary mr-3"></div>
-            <span>Rano: Spokojny start z kawą ☕</span>
+            <div className="w-3 h-3 rounded-full bg-secondary mr-3 flex-shrink-0"></div>
+            <span className="text-sm sm:text-base">Rano: Spokojny start z kawą ☕</span>
           </div>
           <div className="flex items-center text-muted-foreground">
-            <div className="w-2 h-2 rounded-full bg-accent mr-3"></div>
-            <span>Popołudnie: Czas na kreatywność 🎨</span>
+            <div className="w-3 h-3 rounded-full bg-accent mr-3 flex-shrink-0"></div>
+            <span className="text-sm sm:text-base">Popołudnie: Czas na kreatywność 🎨</span>
           </div>
           <div className="flex items-center text-muted-foreground">
-            <div className="w-2 h-2 rounded-full bg-primary mr-3"></div>
-            <span>Wieczór: Relaks i refleksja 🌙</span>
+            <div className="w-3 h-3 rounded-full bg-primary mr-3 flex-shrink-0"></div>
+            <span className="text-sm sm:text-base">Wieczór: Relaks i refleksja 🌙</span>
           </div>
         </div>
       </Card>

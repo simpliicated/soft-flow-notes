@@ -131,10 +131,10 @@ const Tasks = () => {
   const pendingTasks = filteredTasks.filter(task => !task.completed);
 
   return (
-    <div className="min-h-screen p-4 max-w-6xl mx-auto">
+    <div className="min-h-screen p-4 sm:p-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-foreground mb-2">
+      <div className="mb-6 sm:mb-8 pt-2">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2">
           Zadania ✅
         </h1>
         <p className="text-muted-foreground">
@@ -143,7 +143,7 @@ const Tasks = () => {
       </div>
 
       {/* Category tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto">
+      <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
         {Object.entries(categoryLabels).map(([key, label]) => {
           const category = key as keyof typeof categoryLabels;
           const completedCount = getCompletedCount(category);
@@ -154,7 +154,7 @@ const Tasks = () => {
               key={category}
               variant={activeCategory === category ? "default" : "outline"}
               onClick={() => setActiveCategory(category)}
-              className="rounded-xl whitespace-nowrap"
+              className="rounded-2xl whitespace-nowrap font-space-grotesk touch-target flex-shrink-0"
             >
               {label}
               {totalCount > 0 && (

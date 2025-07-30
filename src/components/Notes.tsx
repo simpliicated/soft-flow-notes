@@ -104,10 +104,10 @@ const Notes = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 max-w-6xl mx-auto">
+    <div className="min-h-screen p-4 sm:p-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-foreground mb-2">
+      <div className="mb-6 sm:mb-8 pt-2">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2">
           Notatki ✏️
         </h1>
         <p className="text-muted-foreground">
@@ -116,14 +116,14 @@ const Notes = () => {
       </div>
 
       {/* Search and filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Szukaj w notatkach..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 rounded-xl border-border/50"
+            className="pl-12 pr-4 py-3 rounded-2xl border-border/50 touch-target"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -131,7 +131,7 @@ const Notes = () => {
             variant={selectedTag === '' ? "default" : "outline"}
             size="sm"
             onClick={() => setSelectedTag('')}
-            className="rounded-xl"
+            className="rounded-2xl font-space-grotesk touch-target"
           >
             Wszystkie
           </Button>
@@ -141,7 +141,7 @@ const Notes = () => {
               variant={selectedTag === tag.name ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedTag(selectedTag === tag.name ? '' : tag.name)}
-              className="rounded-xl"
+              className="rounded-2xl font-space-grotesk touch-target"
             >
               {tag.name}
             </Button>
@@ -234,7 +234,7 @@ const Notes = () => {
       )}
 
       {/* Notes grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredNotes.length === 0 ? (
           <div className="col-span-full text-center py-12">
             <div className="text-6xl mb-4">📝</div>
