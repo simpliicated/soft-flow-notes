@@ -88,7 +88,7 @@ const HabitTracker = () => {
   const completedCount = habits.filter(h => h.completed).length;
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-gradient-to-br from-indigo-50 via-white to-cyan-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-gradient-to-br from-pink-50 via-rose-25 to-pink-100 dark:from-pink-900/10 dark:via-rose-900/5 dark:to-pink-900/15">
       <div className="mb-6 sm:mb-8 pt-2">
         <h1 className="text-2xl sm:text-3xl font-lexend font-semibold text-foreground mb-2">
           Nawyki 🌟
@@ -103,28 +103,28 @@ const HabitTracker = () => {
 
       {/* Progress & Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <Card className="card-soft border-0 bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg">
+        <Card className="card-soft border-0 bg-gradient-to-br from-pink-200 to-rose-200 text-pink-800 shadow-lg">
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">{completedCount}/{habits.length}</div>
-            <p className="text-blue-100 text-sm">Dzisiaj ukończone</p>
+            <p className="text-pink-700 text-sm">Dzisiaj ukończone</p>
           </div>
         </Card>
         
-        <Card className="card-soft border-0 bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
+        <Card className="card-soft border-0 bg-gradient-to-br from-rose-200 to-pink-300 text-rose-800 shadow-lg">
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
               {Math.max(...habits.map(h => h.streak || 0), 0)}
             </div>
-            <p className="text-green-100 text-sm">Najdłuższa seria</p>
+            <p className="text-rose-700 text-sm">Najdłuższa seria</p>
           </div>
         </Card>
         
-        <Card className="card-soft border-0 bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg">
+        <Card className="card-soft border-0 bg-gradient-to-br from-pink-300 to-rose-300 text-pink-800 shadow-lg">
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
               {Math.round(habits.reduce((acc, h) => acc + getWeeklyCompletion(h), 0) / habits.length)}%
             </div>
-            <p className="text-orange-100 text-sm">Tygodniowy wynik</p>
+            <p className="text-pink-700 text-sm">Tygodniowy wynik</p>
           </div>
         </Card>
       </div>
@@ -140,8 +140,8 @@ const HabitTracker = () => {
               key={habit.id}
               className={`card-soft border-0 transition-all duration-300 cursor-pointer hover:shadow-xl hover:scale-105 ${
                 habit.completed 
-                  ? 'bg-gradient-to-br from-green-400 to-blue-500 text-white shadow-lg transform scale-105' 
-                  : 'bg-white dark:bg-slate-800 hover:bg-gradient-to-br hover:from-gray-50 hover:to-blue-50 dark:hover:from-slate-700 dark:hover:to-slate-600'
+                  ? 'bg-gradient-to-br from-pink-300 to-rose-400 text-pink-800 shadow-lg transform scale-105' 
+                  : 'bg-white dark:bg-slate-800 hover:bg-gradient-to-br hover:from-pink-50 hover:to-rose-50 dark:hover:from-pink-900/20 dark:hover:to-rose-900/20'
               }`}
               onClick={() => toggleHabit(habit.id)}
             >
@@ -150,8 +150,8 @@ const HabitTracker = () => {
                   <div className={`
                     p-3 rounded-full transition-all duration-200
                     ${habit.completed 
-                      ? 'bg-white/20 text-white' 
-                      : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
+                      ? 'bg-white/30 text-pink-800' 
+                      : 'bg-gradient-to-br from-pink-400 to-rose-500 text-white'
                     }
                   `}>
                     {habit.completed ? (
@@ -162,12 +162,12 @@ const HabitTracker = () => {
                   </div>
                   <div className="flex-1">
                     <h3 className={`font-lexend font-medium ${
-                      habit.completed ? 'text-white' : 'text-foreground'
+                      habit.completed ? 'text-pink-800' : 'text-foreground'
                     }`}>
                       {habit.name}
                     </h3>
                     <div className={`flex items-center space-x-4 text-sm ${
-                      habit.completed ? 'text-white/80' : 'text-muted-foreground'
+                      habit.completed ? 'text-pink-700' : 'text-muted-foreground'
                     }`}>
                       <span>🔥 {habit.streak || 0} dni z rzędu</span>
                       <span>📊 {weeklyCompletion}% w tygodniu</span>
@@ -176,12 +176,12 @@ const HabitTracker = () => {
                 </div>
                 
                 {/* Progress bar */}
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-pink-100 dark:bg-pink-900/20 rounded-full h-2">
                   <div 
                     className={`h-2 rounded-full transition-all duration-500 ${
                       habit.completed 
                         ? 'bg-white/60' 
-                        : 'bg-gradient-to-r from-blue-500 to-purple-600'
+                        : 'bg-gradient-to-r from-pink-400 to-rose-500'
                     }`}
                     style={{ width: `${weeklyCompletion}%` }}
                   ></div>
@@ -193,8 +193,8 @@ const HabitTracker = () => {
       </div>
 
       {/* Add new habit */}
-      <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-slate-800 dark:to-slate-700 hover:border-blue-400 transition-all duration-300">
-        <Button variant="ghost" className="w-full h-16 text-muted-foreground hover:text-blue-600 transition-colors touch-target">
+      <Card className="border-2 border-dashed border-pink-200 dark:border-pink-700/50 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/10 dark:to-rose-900/10 hover:border-pink-300 transition-all duration-300">
+        <Button variant="ghost" className="w-full h-16 text-pink-600 hover:text-pink-700 hover:bg-pink-100 transition-colors touch-target">
           <Plus className="h-5 w-5 mr-2" />
           Dodaj nowy nawyk
         </Button>

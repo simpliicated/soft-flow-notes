@@ -104,7 +104,7 @@ const Notes = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-6xl mx-auto pb-24 bg-gradient-to-br from-primary-soft via-background to-primary-soft/50">
+    <div className="min-h-screen p-4 sm:p-6 max-w-6xl mx-auto pb-24 bg-gradient-to-br from-pink-50 via-rose-25 to-pink-100 dark:from-pink-900/10 dark:via-rose-900/5 dark:to-pink-900/15">
       {/* Header */}
       <div className="mb-6 sm:mb-8 pt-2">
         <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2">
