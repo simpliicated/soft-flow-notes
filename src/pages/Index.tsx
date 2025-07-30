@@ -1,11 +1,38 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import Navigation from '@/components/Navigation';
+import Dashboard from '@/components/Dashboard';
+import Notes from '@/components/Notes';
+import Tasks from '@/components/Tasks';
+import BrainDump from '@/components/BrainDump';
+import MoodTracker from '@/components/MoodTracker';
 
 const Index = () => {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'notes':
+        return <Notes />;
+      case 'tasks':
+        return <Tasks />;
+      case 'brain-dump':
+        return <BrainDump />;
+      case 'mood':
+        return <MoodTracker />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-primary">
+      <div className="flex">
+        <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
+        <main className="flex-1">
+          {renderCurrentPage()}
+        </main>
       </div>
     </div>
   );
