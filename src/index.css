@@ -8,64 +8,66 @@
 
 @layer base {
   :root {
-    /* Soft pastel background gradients */
-    --background: 320 100% 98%;
-    --foreground: 260 15% 25%;
+    /* Modern neutral backgrounds */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 15%;
 
-    /* Card system with subtle colors */
+    /* Cards with subtle elevation */
     --card: 0 0% 100%;
-    --card-foreground: 260 15% 25%;
+    --card-foreground: 240 10% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 260 15% 25%;
+    --popover-foreground: 240 10% 15%;
 
-    /* Primary: Soft lavender */
-    --primary: 280 60% 75%;
+    /* Primary: Modern blue */
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 280 40% 90%;
+    --primary-soft: 221 83% 96%;
 
-    /* Secondary: Mint green */
-    --secondary: 150 50% 85%;
-    --secondary-foreground: 150 40% 25%;
-    --secondary-soft: 150 30% 95%;
+    /* Secondary: Elegant teal */
+    --secondary: 180 84% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-soft: 180 84% 96%;
 
-    /* Accent: Peach */
-    --accent: 25 80% 85%;
-    --accent-foreground: 25 60% 25%;
-    --accent-soft: 25 60% 95%;
+    /* Accent: Warm coral */
+    --accent: 14 90% 60%;
+    --accent-foreground: 0 0% 100%;
+    --accent-soft: 14 90% 96%;
 
-    /* Mood colors */
-    --mood-happy: 60 100% 85%;
-    --mood-calm: 200 60% 85%;
-    --mood-neutral: 40 30% 90%;
-    --mood-sad: 240 50% 85%;
-    --mood-stressed: 10 70% 85%;
+    /* Enhanced mood colors */
+    --mood-happy: 51 100% 70%;
+    --mood-calm: 200 80% 70%;
+    --mood-neutral: 40 20% 85%;
+    --mood-sad: 240 60% 75%;
+    --mood-stressed: 0 84% 75%;
 
-    /* Muted tones */
-    --muted: 260 20% 96%;
-    --muted-foreground: 260 15% 45%;
+    /* Refined muted tones */
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 45%;
 
-    /* Destructive: Soft coral instead of harsh red */
-    --destructive: 0 60% 80%;
-    --destructive-foreground: 0 60% 25%;
+    /* Soft destructive */
+    --destructive: 0 72% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    /* Borders and inputs */
-    --border: 260 20% 92%;
-    --input: 260 20% 96%;
-    --ring: 280 60% 75%;
+    /* Modern borders and inputs */
+    --border: 240 6% 90%;
+    --input: 240 6% 96%;
+    --ring: 221 83% 53%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(320 100% 98%), hsl(280 60% 96%));
-    --gradient-secondary: linear-gradient(135deg, hsl(150 50% 95%), hsl(200 60% 95%));
-    --gradient-accent: linear-gradient(135deg, hsl(25 80% 95%), hsl(60 100% 95%));
-    --gradient-mood: linear-gradient(135deg, hsl(320 80% 95%), hsl(280 60% 95%), hsl(240 50% 95%));
+    /* Enhanced gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 98%), hsl(221 83% 93%));
+    --gradient-secondary: linear-gradient(135deg, hsl(180 84% 96%), hsl(200 90% 94%));
+    --gradient-accent: linear-gradient(135deg, hsl(14 90% 96%), hsl(30 100% 94%));
+    --gradient-mood: linear-gradient(135deg, hsl(300 100% 96%), hsl(280 90% 95%), hsl(260 80% 94%));
+    --gradient-hero: linear-gradient(135deg, hsl(221 83% 53%), hsl(180 84% 50%));
 
-    /* Shadows */
-    --shadow-soft: 0 4px 20px hsl(280 30% 70% / 0.1);
-    --shadow-card: 0 2px 12px hsl(280 20% 80% / 0.08);
-    --shadow-button: 0 2px 8px hsl(280 40% 70% / 0.15);
+    /* Enhanced shadows */
+    --shadow-soft: 0 4px 20px hsl(221 83% 53% / 0.08);
+    --shadow-card: 0 2px 12px hsl(240 10% 15% / 0.06);
+    --shadow-button: 0 2px 8px hsl(221 83% 53% / 0.15);
+    --shadow-elevated: 0 8px 32px hsl(221 83% 53% / 0.12);
 
-    /* Animations */
+    /* Smooth animations */
     --transition-soft: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
     --transition-bounce: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
@@ -133,8 +135,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-poppins;
-    background: var(--gradient-primary);
+    @apply bg-background text-foreground font-poppins antialiased;
+    background: linear-gradient(135deg, hsl(221 83% 98%), hsl(180 84% 98%));
     min-height: 100vh;
   }
 
@@ -144,16 +146,21 @@
 }
 
 @layer components {
-  /* Mobile-first card component */
+  /* Enhanced card styles */
   .card-soft {
-    @apply bg-card border border-border/50 rounded-3xl p-4 sm:p-6;
+    @apply rounded-2xl p-6 transition-all duration-300;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: var(--shadow-card);
-    transition: var(--transition-soft);
   }
 
-  .card-soft:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-soft);
+  .card-elevated {
+    @apply rounded-2xl p-6 transition-all duration-300;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: var(--shadow-elevated);
   }
 
   /* Mobile touch targets */
