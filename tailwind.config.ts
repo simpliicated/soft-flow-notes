@@ -19,9 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'dm-sans': ['DM Sans', 'sans-serif'],
-				'inter': ['Inter', 'sans-serif'],
-				'space-grotesk': ['Space Grotesk', 'sans-serif'],
+				'poppins': ['Poppins', 'sans-serif'],
+				'lexend': ['Lexend', 'sans-serif'],
 			},
 			screens: {
 				'xs': '375px',

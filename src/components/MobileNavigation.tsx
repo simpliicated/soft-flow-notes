@@ -1,4 +1,4 @@
-import { Home, FileText, Brain, Heart, CheckSquare } from 'lucide-react';
+import { Circle, Edit3, Zap, Smile, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface MobileNavigationProps {
@@ -7,11 +7,11 @@ interface MobileNavigationProps {
 }
 
 const navigationItems = [
-  { id: 'dashboard', label: 'Home', icon: Home, emoji: '🏠' },
-  { id: 'notes', label: 'Notatki', icon: FileText, emoji: '✏️' },
-  { id: 'tasks', label: 'Zadania', icon: CheckSquare, emoji: '✅' },
-  { id: 'brain-dump', label: 'Brain', icon: Brain, emoji: '💭' },
-  { id: 'mood', label: 'Nastrój', icon: Heart, emoji: '🌈' },
+  { id: 'dashboard', label: 'Home', icon: Circle, emoji: '🏠' },
+  { id: 'notes', label: 'Notatki', icon: Edit3, emoji: '✏️' },
+  { id: 'tasks', label: 'Zadania', icon: Square, emoji: '✅' },
+  { id: 'brain-dump', label: 'Brain', icon: Zap, emoji: '💭' },
+  { id: 'mood', label: 'Nastrój', icon: Smile, emoji: '🌈' },
 ];
 
 const MobileNavigation = ({ currentPage, onPageChange }: MobileNavigationProps) => {
@@ -39,7 +39,7 @@ const MobileNavigation = ({ currentPage, onPageChange }: MobileNavigationProps) 
               >
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-lg leading-none">{item.emoji}</span>
-                  <span className="text-xs font-medium font-space-grotesk leading-none">
+                  <span className="text-xs font-medium font-poppins leading-none">
                     {item.label}
                   </span>
                 </div>
