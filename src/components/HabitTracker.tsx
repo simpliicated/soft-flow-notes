@@ -6,17 +6,26 @@ import { Check, Plus, Droplets, Book, Dumbbell, Coffee, Moon } from 'lucide-reac
 interface Habit {
   id: string;
   name: string;
-  icon: any;
+  iconName: string; // Store icon name instead of component
   color: string;
   completed: boolean;
 }
 
+// Icon mapping
+const iconMap = {
+  Droplets,
+  Book,
+  Dumbbell,
+  Coffee,
+  Moon,
+};
+
 const defaultHabits: Habit[] = [
-  { id: '1', name: 'Wypić wodę', icon: Droplets, color: 'secondary', completed: false },
-  { id: '2', name: 'Czytanie', icon: Book, color: 'accent', completed: false },
-  { id: '3', name: 'Ruch', icon: Dumbbell, color: 'primary', completed: false },
-  { id: '4', name: 'Kawa', icon: Coffee, color: 'mood-neutral', completed: false },
-  { id: '5', name: 'Meditation', icon: Moon, color: 'mood-calm', completed: false },
+  { id: '1', name: 'Wypić wodę', iconName: 'Droplets', color: 'secondary', completed: false },
+  { id: '2', name: 'Czytanie', iconName: 'Book', color: 'accent', completed: false },
+  { id: '3', name: 'Ruch', iconName: 'Dumbbell', color: 'primary', completed: false },
+  { id: '4', name: 'Kawa', iconName: 'Coffee', color: 'mood-neutral', completed: false },
+  { id: '5', name: 'Meditation', iconName: 'Moon', color: 'mood-calm', completed: false },
 ];
 
 const HabitTracker = () => {
@@ -72,7 +81,7 @@ const HabitTracker = () => {
       {/* Habits Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         {habits.map((habit) => {
-          const Icon = habit.icon;
+          const IconComponent = iconMap[habit.iconName as keyof typeof iconMap] || Droplets;
           return (
             <Card 
               key={habit.id}
@@ -94,7 +103,7 @@ const HabitTracker = () => {
                   {habit.completed ? (
                     <Check className="h-6 w-6" />
                   ) : (
-                    <Icon className="h-6 w-6" />
+                    <IconComponent className="h-6 w-6" />
                   )}
                 </div>
                 <div className="flex-1">
