@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Plus, Droplets, Book, Dumbbell, Coffee, Moon, Trash2, Calendar } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Check, Plus, Droplets, Book, Dumbbell, Coffee, Moon, Trash2, Calendar, Heart, Zap, Sun, Flower, Music } from 'lucide-react';
 import HabitMonthView from './HabitMonthView';
 
 interface Habit {
@@ -22,6 +23,11 @@ const iconMap = {
   Dumbbell,
   Coffee,
   Moon,
+  Heart,
+  Zap,
+  Sun,
+  Flower,
+  Music,
 };
 
 const defaultHabits: Habit[] = [
@@ -35,6 +41,10 @@ const defaultHabits: Habit[] = [
 const HabitTracker = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+  const [isAddingHabit, setIsAddingHabit] = useState(false);
+  const [newHabitName, setNewHabitName] = useState('');
+  const [newHabitIcon, setNewHabitIcon] = useState('Heart');
+  const [newHabitColor, setNewHabitColor] = useState('bg-pink-500');
 
   useEffect(() => {
     const stored = localStorage.getItem('habits');
@@ -90,6 +100,32 @@ const HabitTracker = () => {
     
     return Math.round((recentCompletions.length / 7) * 100);
   };
+
+  const addNewHabit = () => {
+    if (!newHabitName.trim()) return;
+
+    const newHabit: Habit = {
+      id: Date.now().toString(),
+      name: newHabitName,
+      iconName: newHabitIcon,
+      color: newHabitColor,
+      completed: false,
+      streak: 0,
+      completionHistory: []
+    };
+
+    setHabits(prev => [...prev, newHabit]);
+    setNewHabitName('');
+    setNewHabitIcon('Heart');
+    setNewHabitColor('bg-pink-500');
+    setIsAddingHabit(false);
+  };
+
+  const availableIcons = ['Heart', 'Droplets', 'Zap', 'Moon', 'Sun', 'Coffee', 'Book', 'Dumbbell', 'Music', 'Flower'];
+  const availableColors = [
+    'bg-pink-500', 'bg-purple-500', 'bg-blue-500', 'bg-green-500', 
+    'bg-yellow-500', 'bg-red-500', 'bg-indigo-500', 'bg-teal-500'
+  ];
 
   const completedCount = habits.filter(h => h.completed).length;
 
@@ -233,12 +269,84 @@ const HabitTracker = () => {
       </div>
 
       {/* Add new habit */}
-      <Card className="border-2 border-dashed border-pink-200 dark:border-pink-700/50 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/10 dark:to-rose-900/10 hover:border-pink-300 transition-all duration-300">
-        <Button variant="ghost" className="w-full h-16 text-pink-600 hover:text-pink-700 hover:bg-pink-100 transition-colors touch-target">
-          <Plus className="h-5 w-5 mr-2" />
-          Dodaj nowy nawyk
-        </Button>
-      </Card>
+      {!isAddingHabit ? (
+        <Card className="border-2 border-dashed border-pink-200 dark:border-pink-700/50 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/10 dark:to-rose-900/10 hover:border-pink-300 transition-all duration-300">
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsAddingHabit(true)}
+            className="w-full h-16 text-pink-600 hover:text-pink-700 hover:bg-pink-100 transition-colors touch-target"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Dodaj nowy nawyk
+          </Button>
+        </Card>
+      ) : (
+        <Card className="card-soft">
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Nowy nawyk</h3>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Nazwa nawyku</label>
+                <Input
+                  placeholder="np. Pić więcej wody..."
+                  value={newHabitName}
+                  onChange={(e) => setNewHabitName(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Ikona</label>
+                <div className="flex flex-wrap gap-2">
+                  {availableIcons.map(iconName => {
+                    const IconComponent = iconMap[iconName];
+                    return (
+                      <Button
+                        key={iconName}
+                        variant={newHabitIcon === iconName ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setNewHabitIcon(iconName)}
+                        className="w-10 h-10 p-0 rounded-xl"
+                      >
+                        {IconComponent && <IconComponent className="h-4 w-4" />}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Kolor</label>
+                <div className="flex flex-wrap gap-2">
+                  {availableColors.map(color => (
+                    <button
+                      key={color}
+                      onClick={() => setNewHabitColor(color)}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        newHabitColor === color ? 'border-foreground scale-110' : 'border-transparent'
+                      } ${color}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button onClick={addNewHabit} className="btn-primary-soft flex-1">
+                Utwórz nawyk
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddingHabit(false)}
+                className="rounded-xl"
+              >
+                Anuluj
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };

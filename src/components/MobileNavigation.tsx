@@ -1,4 +1,4 @@
-import { Circle, Edit3, Zap, Smile, Square } from 'lucide-react';
+import { Circle, Edit3, Zap, Smile, Square, Repeat, ShoppingCart, Calendar, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface MobileNavigationProps {
@@ -12,14 +12,17 @@ const navigationItems = [
   { id: 'tasks', label: 'Zadania', icon: Square, emoji: '✅' },
   { id: 'brain-dump', label: 'Brain', icon: Zap, emoji: '💭' },
   { id: 'mood', label: 'Nastrój', icon: Smile, emoji: '🌈' },
-  { id: 'habits', label: 'Nawyki', icon: Smile, emoji: '⭐' },
+  { id: 'habits', label: 'Nawyki', icon: Repeat, emoji: '⭐' },
+  { id: 'shopping', label: 'Zakupy', icon: ShoppingCart, emoji: '🛒' },
+  { id: 'calendar', label: 'Kalendarz', icon: Calendar, emoji: '📅' },
+  { id: 'settings', label: 'Ustawienia', icon: Settings, emoji: '⚙️' },
 ];
 
 const MobileNavigation = ({ currentPage, onPageChange }: MobileNavigationProps) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border/50">
       <div className="safe-area-inset-bottom">
-        <div className="flex items-center justify-around px-2 py-2">
+        <div className="flex items-center justify-around px-1 py-2 overflow-x-auto">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPage === item.id;
@@ -30,7 +33,7 @@ const MobileNavigation = ({ currentPage, onPageChange }: MobileNavigationProps) 
                 variant="ghost"
                 size="sm"
                 className={`
-                  flex-col gap-1 h-16 w-16 rounded-2xl transition-all duration-200
+                  flex-col gap-1 h-14 w-14 min-w-[56px] rounded-2xl transition-all duration-200
                   ${isActive 
                     ? 'bg-primary/10 text-primary scale-105' 
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -39,8 +42,8 @@ const MobileNavigation = ({ currentPage, onPageChange }: MobileNavigationProps) 
                 onClick={() => onPageChange(item.id)}
               >
                 <div className="flex flex-col items-center gap-1">
-                  <Icon className="h-5 w-5" />
-                  <span className="text-xs font-medium font-poppins leading-none">
+                  <Icon className="h-4 w-4" />
+                  <span className="text-[10px] font-medium font-poppins leading-none">
                     {item.label}
                   </span>
                 </div>

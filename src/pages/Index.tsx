@@ -6,6 +6,9 @@ import Tasks from '@/components/Tasks';
 import BrainDump from '@/components/BrainDump';
 import MoodTracker from '@/components/MoodTracker';
 import HabitTracker from '@/components/HabitTracker';
+import ShoppingLists from '@/components/ShoppingLists';
+import Calendar from '@/components/Calendar';
+import Settings from '@/components/Settings';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -24,6 +27,12 @@ const Index = () => {
         return <MoodTracker />;
       case 'habits':
         return <HabitTracker />;
+      case 'shopping':
+        return <ShoppingLists />;
+      case 'calendar':
+        return <Calendar />;
+      case 'settings':
+        return <Settings />;
       default:
         return <Dashboard onPageChange={setCurrentPage} />;
     }
