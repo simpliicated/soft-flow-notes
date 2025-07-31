@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Plus, Droplets, Book, Dumbbell, Coffee, Moon } from 'lucide-react';
+import { Check, Plus, Droplets, Book, Dumbbell, Coffee, Moon, Trash2, Calendar } from 'lucide-react';
+import HabitMonthView from './HabitMonthView';
 
 interface Habit {
   id: string;
@@ -33,6 +34,7 @@ const defaultHabits: Habit[] = [
 
 const HabitTracker = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('habits');
@@ -73,6 +75,10 @@ const HabitTracker = () => {
     }));
   };
 
+  const deleteHabit = (id: string) => {
+    setHabits(habits.filter(habit => habit.id !== id));
+  };
+
   const getWeeklyCompletion = (habit: Habit) => {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -86,6 +92,15 @@ const HabitTracker = () => {
   };
 
   const completedCount = habits.filter(h => h.completed).length;
+
+  if (selectedHabit) {
+    return (
+      <HabitMonthView 
+        habit={selectedHabit} 
+        onBack={() => setSelectedHabit(null)} 
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-gradient-to-br from-pink-50 via-rose-25 to-pink-100 dark:from-pink-900/10 dark:via-rose-900/5 dark:to-pink-900/15">
@@ -138,14 +153,39 @@ const HabitTracker = () => {
           return (
             <Card 
               key={habit.id}
-              className={`card-soft border-0 transition-all duration-300 cursor-pointer hover:shadow-xl hover:scale-105 ${
+              className={`card-soft border-0 transition-all duration-300 hover:shadow-xl hover:scale-105 relative group ${
                 habit.completed 
                   ? 'bg-gradient-to-br from-pink-300 to-rose-400 text-pink-800 shadow-lg transform scale-105' 
                   : 'bg-white dark:bg-slate-800 hover:bg-gradient-to-br hover:from-pink-50 hover:to-rose-50 dark:hover:from-pink-900/20 dark:hover:to-rose-900/20'
               }`}
-              onClick={() => toggleHabit(habit.id)}
             >
-              <div className="space-y-3">
+              {/* Action buttons */}
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-10">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 bg-white/80 hover:bg-white text-pink-600 hover:text-pink-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedHabit(habit);
+                  }}
+                >
+                  <Calendar className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 bg-white/80 hover:bg-white text-red-600 hover:text-red-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteHabit(habit.id);
+                  }}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+              
+              <div className="space-y-3" onClick={() => toggleHabit(habit.id)}>
                 <div className="flex items-center space-x-4">
                   <div className={`
                     p-3 rounded-full transition-all duration-200

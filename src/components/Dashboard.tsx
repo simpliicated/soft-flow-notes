@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Brain, Heart, CheckSquare, FileText, Target } from 'lucide-react';
+import DailyPlan from './DailyPlan';
+import RecentActivities from './RecentActivities';
 
 interface DashboardProps {
   onPageChange: (page: string) => void;
@@ -15,14 +17,43 @@ const quotes = [
   "Jesteś dokładnie tam, gdzie masz być 🌈",
 ];
 
+interface Activity {
+  id: string;
+  text: string;
+  timestamp: string;
+  type: 'mood' | 'task' | 'note' | 'habit' | 'plan';
+}
+
 const Dashboard = ({ onPageChange }: DashboardProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [todayQuote] = useState(() => quotes[Math.floor(Math.random() * quotes.length)]);
+  const [activities, setActivities] = useState<Activity[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('recent-activities');
+    if (stored) {
+      setActivities(JSON.parse(stored));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('recent-activities', JSON.stringify(activities));
+  }, [activities]);
+
+  const addActivity = (text: string, type: Activity['type'] = 'plan') => {
+    const activity: Activity = {
+      id: Date.now().toString(),
+      text,
+      timestamp: new Date().toISOString(),
+      type,
+    };
+    setActivities(prev => [activity, ...prev.slice(0, 19)]); // Keep last 20 activities
+  };
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
@@ -86,12 +117,13 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
               variant="outline"
               className="h-20 sm:h-24 flex-col space-y-1 sm:space-y-2 border-0 hover:scale-105 transition-all duration-300 touch-target shadow-lg hover:shadow-xl"
               style={{
-                background: action.color === 'primary' ? 'linear-gradient(135deg, #f8bbd9, #f472b6)' :
+                background: action.color === 'primary' && action.label === 'Nowa notatka' ? 'linear-gradient(135deg, #c7d2fe, #a78bfa)' :
+                           action.color === 'primary' && action.label === 'Nawyki' ? 'linear-gradient(135deg, #f8bbd9, #f472b6)' :
                            action.color === 'secondary' ? 'linear-gradient(135deg, #a7f3d0, #6ee7b7)' :
                            action.color === 'accent' ? 'linear-gradient(135deg, #fed7aa, #fdba74)' :
                            action.color === 'mood' ? 'linear-gradient(135deg, #fde68a, #fcd34d)' :
                            'linear-gradient(135deg, #f8bbd9, #f472b6)',
-                color: action.color === 'primary' || action.color === 'mood' ? '#be185d' : 'white'
+                color: action.color === 'primary' || action.color === 'mood' ? '#1f2937' : '#374151'
               }}
               onClick={() => onPageChange(action.page)}
             >
@@ -110,25 +142,8 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
           <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
             📅 Plan na dziś
           </h3>
-          <Button variant="ghost" size="sm" className="touch-target bg-gradient-to-r from-pink-300 to-purple-400 text-pink-800 hover:from-pink-400 hover:to-purple-500 hover:text-white">
-            <Plus className="h-4 w-4 mr-1" />
-            Dodaj
-          </Button>
         </div>
-        <div className="space-y-3">
-          <div className="flex items-center text-muted-foreground p-3 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20">
-            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-300 to-emerald-400 mr-3 flex-shrink-0"></div>
-            <span className="text-sm sm:text-base">Rano: Spokojny start z kawą ☕</span>
-          </div>
-          <div className="flex items-center text-muted-foreground p-3 rounded-lg bg-gradient-to-r from-orange-100 to-yellow-100 dark:from-orange-900/20 dark:to-yellow-900/20">
-            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-orange-300 to-yellow-400 mr-3 flex-shrink-0"></div>
-            <span className="text-sm sm:text-base">Popołudnie: Czas na kreatywność 🎨</span>
-          </div>
-          <div className="flex items-center text-muted-foreground p-3 rounded-lg bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20">
-            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-300 to-pink-400 mr-3 flex-shrink-0"></div>
-            <span className="text-sm sm:text-base">Wieczór: Relaks i refleksja 🌙</span>
-          </div>
-        </div>
+        <DailyPlan onAddActivity={addActivity} />
       </Card>
 
       {/* Ostatnia aktywność */}
@@ -136,17 +151,7 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
         <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
           💫 Ostatnie aktywności
         </h3>
-        <div className="space-y-3 text-sm text-muted-foreground">
-          <div className="p-3 rounded-lg bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20">
-            🌈 Mood: Spokojnie (15 min temu)
-          </div>
-          <div className="p-3 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20">
-            ✅ Zadanie: "Odpisać na maila" - zakończone
-          </div>
-          <div className="p-3 rounded-lg bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/20">
-            💭 Notatka: "Pomysł na ilustrację z kaktusem"
-          </div>
-        </div>
+        <RecentActivities activities={activities} />
       </Card>
     </div>
   );
