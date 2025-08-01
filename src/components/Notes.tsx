@@ -35,9 +35,16 @@ const colorOptions = [
 const Notes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [newNote, setNewNote] = useState({
+    title: '',
+    content: '',
+    tags: [] as string[],
+    color: 'primary'
+  });
+  const [editNote, setEditNote] = useState({
     title: '',
     content: '',
     tags: [] as string[],
@@ -78,13 +85,55 @@ const Notes = () => {
     setNotes(prev => prev.filter(note => note.id !== id));
   };
 
+  const handleEditNote = (note: Note) => {
+    setEditNote({
+      title: note.title,
+      content: note.content,
+      tags: note.tags,
+      color: note.color
+    });
+    setIsEditing(note.id);
+  };
+
+  const handleSaveEdit = () => {
+    if (!isEditing) return;
+    
+    setNotes(prev => prev.map(note => 
+      note.id === isEditing 
+        ? {
+            ...note,
+            title: editNote.title || 'Bez tytułu',
+            content: editNote.content,
+            tags: editNote.tags,
+            color: editNote.color
+          }
+        : note
+    ));
+    setIsEditing(null);
+    setEditNote({ title: '', content: '', tags: [], color: 'primary' });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(null);
+    setEditNote({ title: '', content: '', tags: [], color: 'primary' });
+  };
+
   const toggleTag = (tagName: string) => {
-    setNewNote(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tagName)
-        ? prev.tags.filter(t => t !== tagName)
-        : [...prev.tags, tagName]
-    }));
+    if (isEditing) {
+      setEditNote(prev => ({
+        ...prev,
+        tags: prev.tags.includes(tagName)
+          ? prev.tags.filter(t => t !== tagName)
+          : [...prev.tags, tagName]
+      }));
+    } else {
+      setNewNote(prev => ({
+        ...prev,
+        tags: prev.tags.includes(tagName)
+          ? prev.tags.filter(t => t !== tagName)
+          : [...prev.tags, tagName]
+      }));
+    }
   };
 
   const filteredNotes = notes.filter(note => {
@@ -150,7 +199,7 @@ const Notes = () => {
       </div>
 
       {/* Add note button */}
-      {!isAdding && (
+      {!isAdding && !isEditing && (
         <Button
           onClick={() => setIsAdding(true)}
           className="btn-primary-soft mb-6"
@@ -160,8 +209,82 @@ const Notes = () => {
         </Button>
       )}
 
+      {/* Edit note form */}
+      {isEditing && (
+        <Card className="card-soft mb-8 border-accent/20">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Edytuj notatkę</h3>
+            <Input
+              placeholder="Tytuł notatki..."
+              value={editNote.title}
+              onChange={(e) => setEditNote(prev => ({ ...prev, title: e.target.value }))}
+              className="border-border/50 rounded-xl"
+            />
+            <Textarea
+              placeholder="Napisz swoją notatkę tutaj... 💭"
+              value={editNote.content}
+              onChange={(e) => setEditNote(prev => ({ ...prev, content: e.target.value }))}
+              className="min-h-[120px] border-border/50 rounded-xl resize-none"
+            />
+            
+            {/* Tags */}
+            <div>
+              <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1">
+                <Tag className="h-4 w-4" />
+                Tagi
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {predefinedTags.map(tag => (
+                  <Badge
+                    key={tag.name}
+                    variant={editNote.tags.includes(tag.name) ? "default" : "outline"}
+                    className={`cursor-pointer rounded-xl transition-colors ${
+                      editNote.tags.includes(tag.name) ? 'bg-primary text-primary-foreground' : ''
+                    }`}
+                    onClick={() => toggleTag(tag.name)}
+                  >
+                    {tag.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Color selection */}
+            <div>
+              <p className="text-sm font-medium text-foreground mb-2">Kolor</p>
+              <div className="flex gap-2">
+                {colorOptions.map(color => (
+                  <button
+                    key={color.value}
+                    onClick={() => setEditNote(prev => ({ ...prev, color: color.value }))}
+                    className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${
+                      getColorClass(color.value)
+                    } ${editNote.color === color.value ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                    title={color.name}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={handleSaveEdit} className="btn-primary-soft">
+                <Heart className="h-4 w-4 mr-2" />
+                Zapisz zmiany
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleCancelEdit}
+                className="rounded-xl"
+              >
+                Anuluj
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Add note form */}
-      {isAdding && (
+      {isAdding && !isEditing && (
         <Card className="card-soft mb-8 border-primary/20">
           <div className="space-y-4">
             <Input
@@ -257,7 +380,12 @@ const Notes = () => {
                     {note.title}
                   </h3>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleEditNote(note)}
+                    >
                       <Edit3 className="h-3 w-3" />
                     </Button>
                     <Button

@@ -66,8 +66,23 @@ const Settings = () => {
     localStorage.setItem('zapiszto-user-settings', JSON.stringify(settings));
     setHasChanges(false);
     
-    // Show feedback (you could add a toast here)
-    console.log('Ustawienia zapisane!');
+    // Apply theme immediately
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (settings.theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      // Auto mode
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    
+    // Show feedback
+    alert('Ustawienia zostały zapisane! ✅');
   };
 
   const resetSettings = () => {

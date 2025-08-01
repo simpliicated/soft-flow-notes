@@ -79,6 +79,7 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
     { icon: Brain, label: "Brain Dump", color: "accent", page: "brain-dump" },
     { icon: Heart, label: "Nastrój", color: "mood", page: "mood" },
     { icon: Target, label: "Nawyki", color: "primary", page: "habits" },
+    { icon: Plus, label: "Lista zakupów", color: "accent", page: "shopping" },
   ];
 
   return (
@@ -110,7 +111,7 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
         <h2 className="text-xl font-semibold text-foreground mb-4">
           Co dzisiaj robimy? 🚀
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {quickActions.map((action, index) => (
             <Button
               key={index}
