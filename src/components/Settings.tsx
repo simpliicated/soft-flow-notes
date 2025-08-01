@@ -13,6 +13,7 @@ import {
   Save,
   RotateCcw
 } from 'lucide-react';
+import APIKeySettings from '@/components/APIKeySettings';
 
 interface UserSettings {
   name: string;
@@ -208,6 +209,9 @@ const Settings = () => {
             </div>
           </div>
         </Card>
+
+        {/* AI Settings */}
+        <APIKeySettings />
 
         {/* Behavior */}
         <Card className="card-soft">

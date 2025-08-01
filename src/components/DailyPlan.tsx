@@ -102,6 +102,28 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
         const newCompleted = !item.completed;
         if (newCompleted) {
           onAddActivity(`Plan: "${item.text}" - ukończone`);
+          
+          // Sync back to source if it's a task or habit
+          if (item.source === 'task') {
+            const tasksData = localStorage.getItem('zapiszto-tasks');
+            if (tasksData) {
+              const tasks = JSON.parse(tasksData);
+              const updatedTasks = tasks.map((task: any) => 
+                task.id === id.replace('task-', '') ? { ...task, completed: true } : task
+              );
+              localStorage.setItem('zapiszto-tasks', JSON.stringify(updatedTasks));
+            }
+          } else if (item.source === 'habit') {
+            const habitsData = localStorage.getItem('habits');
+            if (habitsData) {
+              const habits = JSON.parse(habitsData);
+              const today = new Date().toDateString();
+              const updatedHabits = habits.map((habit: any) => 
+                habit.id === id.replace('habit-', '') ? { ...habit, lastCompleted: today } : habit
+              );
+              localStorage.setItem('habits', JSON.stringify(updatedHabits));
+            }
+          }
         }
         return { ...item, completed: newCompleted };
       }
@@ -111,7 +133,7 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
 
   const deleteItem = (id: string) => {
     // Only allow deletion of manual items
-    setPlanItems(prev => prev.filter(item => item.id !== id && (item.source === 'manual' || !item.source)));
+    setPlanItems(prev => prev.filter(item => item.id !== id || (item.source !== 'manual' && item.source)));
   };
 
   const getTimeColor = (item: PlanItem) => {
