@@ -1,4 +1,6 @@
+
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AIResponse {
   content: string;
@@ -12,19 +14,43 @@ export const useAI = () => {
     setIsLoading(true);
     
     try {
-      // Check if OpenAI API key is available
-      const apiKey = localStorage.getItem('openai-api-key');
+      console.log('Calling AI expand function...', { noteTitle });
       
-      if (!apiKey) {
-        // Return enhanced mock response with better context
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        const expandedContent = `💡 **Rozwinięcie pomysłu: "${noteTitle}"**
+      // Call the Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('ai-expand-note', {
+        body: { noteContent, noteTitle }
+      });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Błąd wywołania funkcji AI');
+      }
+
+      if (data?.error) {
+        console.error('AI function returned error:', data.error);
+        throw new Error(data.error);
+      }
+
+      if (!data?.content) {
+        throw new Error('Brak odpowiedzi od AI');
+      }
+
+      console.log('AI expansion successful');
+      return { content: data.content };
+
+    } catch (error) {
+      console.error('Error expanding note:', error);
+      
+      // Fallback to enhanced mock response
+      console.log('Using fallback mock response...');
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const expandedContent = `💡 **Rozwinięcie pomysłu: "${noteTitle}"**
 
 🌟 **Główna myśl:** ${noteContent}
 
 🔍 **Możliwe kierunki rozwoju:**
-• **Praktyczne zastosowanie:** Jak możesz wykorzystać ten pomysł w codziennym życiu?
+• **Praktyczne zastosowanie:** Jak możesz wykorzystać ten pomysł w codziennym życie?
 • **Powiązania:** Czy łączy się z innymi twoimi projektami lub pomysłami?
 • **Następne kroki:** Jakie małe działania możesz podjąć już dziś?
 • **Zasoby:** Czego potrzebujesz, aby ten pomysł zrealizować?
@@ -38,52 +64,11 @@ export const useAI = () => {
 🚀 **Dlaczego warto to robić:**
 Ten pomysł może prowadzić do nieoczekiwanych odkryć i możliwości!
 
-*💡 Aby uzyskać bardziej spersonalizowane rozwinięcia, dodaj swój klucz OpenAI API w ustawieniach.*`;
+*⚠️ To była odpowiedź demo. Sprawdź ustawienia AI lub klucz API.*`;
 
-        return { content: expandedContent };
-      }
-
-      // Real OpenAI API call
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            {
-              role: 'system',
-              content: 'Jesteś pomocnym asystentem, który rozwijają pomysły użytkowników. Odpowiadaj w języku polskim. Bądź kreatywny, praktyczny i inspirujący. Pomagaj przekształcać proste pomysły w konkretne plany działania.'
-            },
-            {
-              role: 'user',
-              content: `Rozwiń ten pomysł/notatkę w sposób praktyczny i inspirujący:
-
-Tytuł: "${noteTitle}"
-Treść: "${noteContent}"
-
-Zaproponuj konkretne kierunki rozwoju, działania do podjęcia, pytania do rozważenia i powiązania z innymi obszarami życia. Bądź kreatywny ale praktyczny.`
-            }
-          ],
-          max_tokens: 800,
-          temperature: 0.7
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Błąd API OpenAI');
-      }
-
-      const data = await response.json();
-      const expandedContent = data.choices[0]?.message?.content || 'Nie udało się wygenerować odpowiedzi.';
-
-      return { content: expandedContent };
-    } catch (error) {
       return { 
-        content: '', 
-        error: 'Nie udało się rozwinąć notatki. Sprawdź klucz API lub spróbuj ponownie.' 
+        content: expandedContent,
+        error: error instanceof Error ? error.message : 'Nie udało się połączyć z AI - używam wersji demo'
       };
     } finally {
       setIsLoading(false);
