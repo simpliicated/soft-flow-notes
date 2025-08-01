@@ -180,7 +180,7 @@ const MoodTracker = () => {
                   }`}
                 >
                   <div className="text-3xl sm:text-4xl mb-1 sm:mb-2">{mood.emoji}</div>
-                  <p className="text-xs sm:text-sm font-medium text-foreground font-space-grotesk">
+                   <p className="text-xs sm:text-sm font-medium text-foreground">
                     {mood.name}
                   </p>
                 </button>
@@ -303,7 +303,7 @@ const MoodTracker = () => {
       <Card className="card-soft bg-gradient-accent border-0">
         <div className="text-center">
           <div className="text-4xl mb-3">💚</div>
-          <p className="text-accent-foreground font-medium">
+          <p className="text-foreground font-medium">
             {encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)]}
           </p>
         </div>

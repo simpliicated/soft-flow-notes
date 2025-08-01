@@ -83,7 +83,7 @@ const BrainDump = () => {
           Miejsce na wszystko, co kłębi Ci się w głowie
         </p>
         <div className="bg-gradient-accent rounded-2xl p-4 border-0">
-          <p className="text-sm text-accent-foreground font-medium">
+          <p className="text-sm text-foreground font-medium">
             💡 {randomMessage}
           </p>
         </div>
@@ -157,7 +157,7 @@ const BrainDump = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => markAsSorted(entry.id)}
-                      className="h-8 px-3 text-xs bg-secondary/50 hover:bg-secondary"
+                      className="h-8 px-3 text-xs bg-secondary/50 hover:bg-secondary text-foreground"
                       title="Oznacz jako posortowane"
                     >
                       <Archive className="h-3 w-3 mr-1" />
