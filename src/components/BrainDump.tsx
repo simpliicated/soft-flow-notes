@@ -186,11 +186,10 @@ const BrainDump = () => {
                       title="Kopiuj tekst"
                     >
                       {copiedId === entry.id ? (
-                        <Check className="h-3 w-3 mr-1" />
+                        <Check className="h-3 w-3" />
                       ) : (
-                        <Copy className="h-3 w-3 mr-1" />
+                        <Copy className="h-3 w-3" />
                       )}
-                      Kopiuj
                     </Button>
                     <Button
                       variant="ghost"
@@ -199,8 +198,7 @@ const BrainDump = () => {
                       className="h-8 px-3 text-xs bg-secondary/50 hover:bg-secondary text-foreground"
                       title="Oznacz jako posortowane"
                     >
-                      <Archive className="h-3 w-3 mr-1" />
-                      Posortuj
+                      <Archive className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"

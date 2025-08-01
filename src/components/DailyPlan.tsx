@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Check, X } from 'lucide-react';
+import { Plus, Check, X, Calendar, Zap } from 'lucide-react';
 
 interface PlanItem {
   id: string;
   text: string;
   completed: boolean;
   time?: string;
+  source?: 'manual' | 'task' | 'habit' | 'calendar';
 }
 
 interface DailyPlanProps {
@@ -20,17 +21,60 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
   const [newItem, setNewItem] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
+  // Load data from different sources and merge
   useEffect(() => {
-    const stored = localStorage.getItem('daily-plan');
-    if (stored) {
-      setPlanItems(JSON.parse(stored));
-    } else {
-      setPlanItems([
-        { id: '1', text: 'Spokojny start z kawą', completed: false, time: 'rano' },
-        { id: '2', text: 'Czas na kreatywność', completed: false, time: 'popołudnie' },
-        { id: '3', text: 'Relaks i refleksja', completed: false, time: 'wieczór' },
-      ]);
-    }
+    const loadDataFromSources = () => {
+      const stored = localStorage.getItem('daily-plan');
+      let manualItems: PlanItem[] = [];
+      
+      if (stored) {
+        const allItems = JSON.parse(stored);
+        manualItems = allItems.filter((item: PlanItem) => item.source === 'manual' || !item.source);
+      }
+
+      // Load today's tasks
+      const tasksData = localStorage.getItem('zapiszto-tasks');
+      const todayTasks: PlanItem[] = [];
+      if (tasksData) {
+        const tasks = JSON.parse(tasksData);
+        const todayTasksFilter = tasks.filter((task: any) => task.category === 'today' && !task.completed);
+        todayTasksFilter.forEach((task: any) => {
+          todayTasks.push({
+            id: `task-${task.id}`,
+            text: `📋 ${task.title}`,
+            completed: false,
+            source: 'task'
+          });
+        });
+      }
+
+      // Load uncompleted habits
+      const habitsData = localStorage.getItem('habits');
+      const todayHabits: PlanItem[] = [];
+      if (habitsData) {
+        const habits = JSON.parse(habitsData);
+        const today = new Date().toDateString();
+        const uncompletedHabits = habits.filter((habit: any) => habit.lastCompleted !== today);
+        uncompletedHabits.forEach((habit: any) => {
+          todayHabits.push({
+            id: `habit-${habit.id}`,
+            text: `✨ ${habit.name}`,
+            completed: false,
+            source: 'habit'
+          });
+        });
+      }
+
+      // Combine all items
+      const allItems = [...manualItems, ...todayTasks, ...todayHabits];
+      setPlanItems(allItems);
+    };
+
+    loadDataFromSources();
+    
+    // Set up interval to refresh data every minute
+    const interval = setInterval(loadDataFromSources, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -44,6 +88,7 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
       id: Date.now().toString(),
       text: newItem,
       completed: false,
+      source: 'manual'
     };
     
     setPlanItems(prev => [...prev, item]);
@@ -65,11 +110,15 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
   };
 
   const deleteItem = (id: string) => {
-    setPlanItems(prev => prev.filter(item => item.id !== id));
+    // Only allow deletion of manual items
+    setPlanItems(prev => prev.filter(item => item.id !== id && (item.source === 'manual' || !item.source)));
   };
 
-  const getTimeColor = (time?: string) => {
-    switch (time) {
+  const getTimeColor = (item: PlanItem) => {
+    if (item.source === 'task') return 'from-blue-100 to-blue-200 dark:from-blue-900/20 dark:to-blue-800/20';
+    if (item.source === 'habit') return 'from-purple-100 to-purple-200 dark:from-purple-900/20 dark:to-purple-800/20';
+    
+    switch (item.time) {
       case 'rano': return 'from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20';
       case 'popołudnie': return 'from-orange-100 to-yellow-100 dark:from-orange-900/20 dark:to-yellow-900/20';
       case 'wieczór': return 'from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20';
@@ -77,8 +126,11 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
     }
   };
 
-  const getTimeDot = (time?: string) => {
-    switch (time) {
+  const getTimeDot = (item: PlanItem) => {
+    if (item.source === 'task') return 'from-blue-400 to-blue-500';
+    if (item.source === 'habit') return 'from-purple-400 to-purple-500';
+    
+    switch (item.time) {
       case 'rano': return 'from-green-300 to-emerald-400';
       case 'popołudnie': return 'from-orange-300 to-yellow-400';
       case 'wieczór': return 'from-purple-300 to-pink-400';
@@ -91,7 +143,7 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
       {planItems.map((item) => (
         <div
           key={item.id}
-          className={`flex items-center p-3 rounded-lg bg-gradient-to-r ${getTimeColor(item.time)} group transition-all duration-200 ${
+          className={`flex items-center p-3 rounded-lg bg-gradient-to-r ${getTimeColor(item)} group transition-all duration-200 ${
             item.completed ? 'opacity-60' : ''
           }`}
         >
@@ -100,7 +152,7 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
             className={`w-3 h-3 rounded-full mr-3 flex-shrink-0 transition-all duration-200 ${
               item.completed 
                 ? 'bg-gradient-to-r from-green-400 to-emerald-500' 
-                : `bg-gradient-to-r ${getTimeDot(item.time)}`
+                : `bg-gradient-to-r ${getTimeDot(item)}`
             }`}
           />
           <span 
@@ -110,12 +162,14 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
           >
             {item.text} {item.time && `☕`}
           </span>
-          <button
-            onClick={() => deleteItem(item.id)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500 ml-2"
-          >
-            <X className="h-3 w-3" />
-          </button>
+          {(item.source === 'manual' || !item.source) && (
+            <button
+              onClick={() => deleteItem(item.id)}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500 ml-2"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
         </div>
       ))}
       

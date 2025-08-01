@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Tag, Edit3, Trash2, Heart } from 'lucide-react';
+import { Plus, Search, Tag, Edit3, Trash2, Heart, Sparkles, Loader2 } from 'lucide-react';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
+import { useAI } from '@/hooks/useAI';
+import { toast } from '@/hooks/use-toast';
 
 interface Note {
   id: string;
@@ -14,6 +16,7 @@ interface Note {
   color: string;
   date: string;
   title: string;
+  aiExpanded?: string;
 }
 
 const predefinedTags = [
@@ -40,6 +43,8 @@ const Notes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const { addActivity } = useActivityLogger();
+  const { expandNote, isLoading: aiLoading } = useAI();
+  const [expandingNoteId, setExpandingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState({
     title: '',
     content: '',
@@ -119,6 +124,46 @@ const Notes = () => {
     
     // Log activity
     addActivity(`Zaktualizowano notatkę: ${editNote.title || 'Bez tytułu'}`, 'note');
+  };
+
+  const handleExpandWithAI = async (note: Note) => {
+    setExpandingNoteId(note.id);
+    
+    try {
+      const result = await expandNote(note.content, note.title);
+      
+      if (result.error) {
+        toast({
+          title: "Błąd AI",
+          description: result.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update note with AI expansion
+      setNotes(prev => prev.map(n => 
+        n.id === note.id 
+          ? { ...n, aiExpanded: result.content }
+          : n
+      ));
+
+      toast({
+        title: "AI rozwinęło Twoją notatkę!",
+        description: "Sprawdź nową sekcję z pomysłami AI.",
+      });
+
+      // Log activity
+      addActivity(`AI rozwinęło notatkę: ${note.title}`, 'note');
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się rozwinąć notatki",
+        variant: "destructive",
+      });
+    } finally {
+      setExpandingNoteId(null);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -392,6 +437,20 @@ const Notes = () => {
                       variant="ghost" 
                       size="sm" 
                       className="h-8 w-8 p-0"
+                      onClick={() => handleExpandWithAI(note)}
+                      disabled={expandingNoteId === note.id || aiLoading}
+                      title="Rozwiń pomysł z AI"
+                    >
+                      {expandingNoteId === note.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3 w-3" />
+                      )}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
                       onClick={() => handleEditNote(note)}
                     >
                       <Edit3 className="h-3 w-3" />
@@ -410,6 +469,18 @@ const Notes = () => {
                 <p className="text-sm text-foreground/80 line-clamp-4">
                   {note.content}
                 </p>
+
+                {note.aiExpanded && (
+                  <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Sparkles className="h-3 w-3 text-primary" />
+                      <span className="text-xs font-medium text-primary">Rozwinięte przez AI</span>
+                    </div>
+                    <div className="text-xs text-foreground/70 whitespace-pre-line max-h-32 overflow-y-auto">
+                      {note.aiExpanded}
+                    </div>
+                  </div>
+                )}
                 
                 {note.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1">
