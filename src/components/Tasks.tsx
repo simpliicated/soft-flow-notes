@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Calendar, Tag, Clock, CheckCircle2, Circle, Edit3, Trash2 } from 'lucide-react';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 
 interface Task {
   id: string;
@@ -39,6 +40,7 @@ const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [activeCategory, setActiveCategory] = useState<'today' | 'later' | 'ideas'>('today');
+  const { addActivity } = useActivityLogger();
   const [newTask, setNewTask] = useState<{
     title: string;
     description: string;
@@ -93,12 +95,26 @@ const Tasks = () => {
       deadline: '',
     });
     setIsAdding(false);
+    
+    // Log activity
+    addActivity(`Dodano zadanie: ${newTask.title}`, 'task');
   };
 
   const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    setTasks(prev => prev.map(task => {
+      if (task.id === id) {
+        const wasCompleted = task.completed;
+        const newCompleted = !wasCompleted;
+        
+        // Log activity
+        if (newCompleted) {
+          addActivity(`Ukończono zadanie: ${task.title}`, 'task');
+        }
+        
+        return { ...task, completed: newCompleted };
+      }
+      return task;
+    }));
   };
 
   const deleteTask = (id: string) => {

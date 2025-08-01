@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Tag, Edit3, Trash2, Heart } from 'lucide-react';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 
 interface Note {
   id: string;
@@ -38,6 +39,7 @@ const Notes = () => {
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
+  const { addActivity } = useActivityLogger();
   const [newNote, setNewNote] = useState({
     title: '',
     content: '',
@@ -79,6 +81,9 @@ const Notes = () => {
     setNotes(prev => [note, ...prev]);
     setNewNote({ title: '', content: '', tags: [], color: 'primary' });
     setIsAdding(false);
+    
+    // Log activity
+    addActivity(`Dodano notatkę: ${note.title}`, 'note');
   };
 
   const handleDeleteNote = (id: string) => {
@@ -111,6 +116,9 @@ const Notes = () => {
     ));
     setIsEditing(null);
     setEditNote({ title: '', content: '', tags: [], color: 'primary' });
+    
+    // Log activity
+    addActivity(`Zaktualizowano notatkę: ${editNote.title || 'Bez tytułu'}`, 'note');
   };
 
   const handleCancelEdit = () => {

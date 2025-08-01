@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, Plus, Droplets, Book, Dumbbell, Coffee, Moon, Trash2, Calendar, Heart, Zap, Sun, Flower, Music } from 'lucide-react';
 import HabitMonthView from './HabitMonthView';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 
 interface Habit {
   id: string;
@@ -45,6 +46,7 @@ const HabitTracker = () => {
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitIcon, setNewHabitIcon] = useState('Heart');
   const [newHabitColor, setNewHabitColor] = useState('bg-pink-500');
+  const { addActivity } = useActivityLogger();
 
   useEffect(() => {
     const stored = localStorage.getItem('habits');
@@ -59,19 +61,70 @@ const HabitTracker = () => {
     localStorage.setItem('habits', JSON.stringify(habits));
   }, [habits]);
 
+  // Reset habits daily - check if it's a new day
+  useEffect(() => {
+    const checkAndResetHabits = () => {
+      const today = new Date().toDateString();
+      
+      setHabits(prevHabits => prevHabits.map(habit => {
+        // If the habit was not completed today, mark it as not completed
+        const wasCompletedToday = habit.lastCompleted === today;
+        return {
+          ...habit,
+          completed: wasCompletedToday
+        };
+      }));
+    };
+
+    checkAndResetHabits();
+    
+    // Check daily at midnight
+    const now = new Date();
+    const msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
+    
+    const timeoutId = setTimeout(() => {
+      checkAndResetHabits();
+      // Set interval for daily reset
+      setInterval(checkAndResetHabits, 24 * 60 * 60 * 1000);
+    }, msUntilMidnight);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+
   const toggleHabit = (id: string) => {
     const today = new Date().toDateString();
     
     setHabits(habits.map(habit => {
       if (habit.id === id) {
-        const isCompleting = !habit.completed;
+        // Check if habit was already completed today or if it's a new day
+        const wasLastCompletedToday = habit.lastCompleted === today;
+        const isCompleting = !wasLastCompletedToday;
+        
         const newHistory = isCompleting 
           ? [...(habit.completionHistory || []), today]
           : (habit.completionHistory || []).filter(date => date !== today);
         
-        const newStreak = isCompleting 
-          ? (habit.streak || 0) + 1 
-          : Math.max(0, (habit.streak || 0) - 1);
+        let newStreak = habit.streak || 0;
+        if (isCompleting) {
+          // If completing today, check if it continues the streak
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toDateString();
+          
+          if (habit.lastCompleted === yesterdayStr || newStreak === 0) {
+            newStreak = newStreak + 1;
+          } else {
+            newStreak = 1; // Start new streak
+          }
+        } else {
+          // If uncompleting, decrease streak
+          newStreak = Math.max(0, newStreak - 1);
+        }
+
+        // Log activity
+        if (isCompleting) {
+          addActivity(`Zaliczono nawyk: ${habit.name}`, 'habit');
+        }
 
         return {
           ...habit, 

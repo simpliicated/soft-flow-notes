@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Heart, Calendar, TrendingUp, Smile } from 'lucide-react';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 
 interface MoodEntry {
   id: string;
@@ -28,6 +29,7 @@ const MoodTracker = () => {
   const [selectedMood, setSelectedMood] = useState<typeof moodOptions[0] | null>(null);
   const [moodNote, setMoodNote] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const { addActivity } = useActivityLogger();
 
   // Load mood entries from localStorage
   useEffect(() => {
@@ -59,6 +61,9 @@ const MoodTracker = () => {
     setSelectedMood(null);
     setMoodNote('');
     setShowAddForm(false);
+    
+    // Log activity
+    addActivity(`Zapisano nastrój: ${selectedMood.name} ${selectedMood.emoji}`, 'mood');
   };
 
   const getTodayEntry = () => {

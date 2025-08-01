@@ -3,7 +3,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Send, Archive, ArrowRight, Trash2, Lightbulb } from 'lucide-react';
+import { Brain, Send, Archive, ArrowRight, Trash2, Lightbulb, Copy, Check } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 
 interface BrainDumpEntry {
   id: string;
@@ -15,6 +17,8 @@ interface BrainDumpEntry {
 const BrainDump = () => {
   const [entries, setEntries] = useState<BrainDumpEntry[]>([]);
   const [currentThought, setCurrentThought] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const { addActivity } = useActivityLogger();
 
   // Load entries from localStorage
   useEffect(() => {
@@ -41,6 +45,9 @@ const BrainDump = () => {
 
     setEntries(prev => [newEntry, ...prev]);
     setCurrentThought('');
+    
+    // Log activity
+    addActivity(`Dodano myśl: "${currentThought.slice(0, 50)}${currentThought.length > 50 ? '...' : ''}"`, 'brain-dump');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -57,6 +64,24 @@ const BrainDump = () => {
 
   const deleteEntry = (id: string) => {
     setEntries(prev => prev.filter(entry => entry.id !== id));
+  };
+
+  const copyToClipboard = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      toast({
+        title: "Skopiowano!",
+        description: "Tekst został skopiowany do schowka",
+      });
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się skopiować tekstu",
+        variant: "destructive",
+      });
+    }
   };
 
   const unsortedEntries = entries.filter(entry => entry.status === 'unsorted');
@@ -156,6 +181,20 @@ const BrainDump = () => {
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => copyToClipboard(entry.content, entry.id)}
+                      className="h-8 px-3 text-xs bg-secondary/50 hover:bg-secondary text-foreground"
+                      title="Kopiuj tekst"
+                    >
+                      {copiedId === entry.id ? (
+                        <Check className="h-3 w-3 mr-1" />
+                      ) : (
+                        <Copy className="h-3 w-3 mr-1" />
+                      )}
+                      Kopiuj
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => markAsSorted(entry.id)}
                       className="h-8 px-3 text-xs bg-secondary/50 hover:bg-secondary text-foreground"
                       title="Oznacz jako posortowane"
@@ -201,14 +240,29 @@ const BrainDump = () => {
                       {entry.date}
                     </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteEntry(entry.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 text-destructive"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(entry.content, entry.id)}
+                      className="h-8 w-8 p-0 text-muted-foreground"
+                      title="Kopiuj tekst"
+                    >
+                      {copiedId === entry.id ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteEntry(entry.id)}
+                      className="h-8 w-8 p-0 text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </Card>
             ))}
