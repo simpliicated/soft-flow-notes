@@ -396,20 +396,6 @@ const Notes = () => {
                       variant="ghost" 
                       size="sm" 
                       className="h-8 w-8 p-0"
-                      onClick={() => handleExpandWithAI(note)}
-                      disabled={expandingNoteId === note.id || aiLoading}
-                      title="Rozwiń pomysł z AI"
-                    >
-                      {expandingNoteId === note.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Sparkles className="h-3 w-3" />
-                      )}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0"
                       onClick={() => handleEditNote(note)}
                     >
                       <Edit3 className="h-3 w-3" />
@@ -428,18 +414,6 @@ const Notes = () => {
                 <p className="text-sm text-foreground/80 line-clamp-4">
                   {note.content}
                 </p>
-
-                {note.aiExpanded && (
-                  <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/50">
-                    <div className="flex items-center gap-1 mb-2">
-                      <Sparkles className="h-3 w-3 text-primary" />
-                      <span className="text-xs font-medium text-primary">Rozwinięte przez AI</span>
-                    </div>
-                    <div className="text-xs text-foreground/70 whitespace-pre-line max-h-32 overflow-y-auto">
-                      {note.aiExpanded}
-                    </div>
-                  </div>
-                )}
                 
                 {note.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1">

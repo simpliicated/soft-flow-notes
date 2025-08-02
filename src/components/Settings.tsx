@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   Settings as SettingsIcon,
   User,
@@ -11,7 +14,8 @@ import {
   MessageCircle,
   Bell,
   Save,
-  RotateCcw
+  RotateCcw,
+  LogOut
 } from 'lucide-react';
 import APIKeySettings from '@/components/APIKeySettings';
 
@@ -26,6 +30,7 @@ interface UserSettings {
 }
 
 const Settings = () => {
+  const { user, signOut } = useAuth();
   const [settings, setSettings] = useState<UserSettings>({
     name: 'Paula',
     theme: 'light',
@@ -137,6 +142,32 @@ const Settings = () => {
       </div>
 
       <div className="space-y-6">
+        {/* User Info */}
+        {user && (
+          <Card className="card-soft border-primary/20">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-foreground">Zalogowany jako</h3>
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                </div>
+              </div>
+              <Button
+                onClick={signOut}
+                variant="outline"
+                className="w-full"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Wyloguj się
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Personal Details */}
         {/* Personal */}
         <Card className="card-soft">
           <div className="space-y-4">

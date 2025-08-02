@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import MobileNavigation from '@/components/MobileNavigation';
 import Dashboard from '@/components/Dashboard';
 import Notes from '@/components/Notes';
@@ -11,7 +12,29 @@ import Calendar from '@/components/Calendar';
 import Settings from '@/components/Settings';
 
 const Index = () => {
+  const { user, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
+
+  useEffect(() => {
+    if (!loading && !user) {
+      window.location.href = '/auth';
+    }
+  }, [user, loading]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-primary flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Ładowanie...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const renderCurrentPage = () => {
     switch (currentPage) {
