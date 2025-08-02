@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Tag, Edit3, Trash2, Heart, Sparkles, Loader2 } from 'lucide-react';
+import { Plus, Search, Tag, Edit3, Trash2, Heart } from 'lucide-react';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
-import { useAI } from '@/hooks/useAI';
+
 import { toast } from '@/hooks/use-toast';
 
 interface Note {
@@ -43,8 +43,6 @@ const Notes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const { addActivity } = useActivityLogger();
-  const { expandNote, isLoading: aiLoading } = useAI();
-  const [expandingNoteId, setExpandingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState({
     title: '',
     content: '',
@@ -126,45 +124,6 @@ const Notes = () => {
     addActivity(`Zaktualizowano notatkę: ${editNote.title || 'Bez tytułu'}`, 'note');
   };
 
-  const handleExpandWithAI = async (note: Note) => {
-    setExpandingNoteId(note.id);
-    
-    try {
-      const result = await expandNote(note.content, note.title);
-      
-      if (result.error) {
-        toast({
-          title: "Błąd AI",
-          description: result.error,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Update note with AI expansion
-      setNotes(prev => prev.map(n => 
-        n.id === note.id 
-          ? { ...n, aiExpanded: result.content }
-          : n
-      ));
-
-      toast({
-        title: "AI rozwinęło Twoją notatkę!",
-        description: "Sprawdź nową sekcję z pomysłami AI.",
-      });
-
-      // Log activity
-      addActivity(`AI rozwinęło notatkę: ${note.title}`, 'note');
-    } catch (error) {
-      toast({
-        title: "Błąd",
-        description: "Nie udało się rozwinąć notatki",
-        variant: "destructive",
-      });
-    } finally {
-      setExpandingNoteId(null);
-    }
-  };
 
   const handleCancelEdit = () => {
     setIsEditing(null);

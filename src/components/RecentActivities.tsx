@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 
 interface Activity {
   id: string;
@@ -13,6 +15,11 @@ interface RecentActivitiesProps {
 
 const RecentActivities = ({ activities }: RecentActivitiesProps) => {
   const [localActivities, setLocalActivities] = useState<Activity[]>(activities);
+
+  const clearActivities = () => {
+    localStorage.removeItem('recent-activities');
+    setLocalActivities([]);
+  };
 
   useEffect(() => {
     setLocalActivities(activities);
@@ -68,6 +75,19 @@ const RecentActivities = ({ activities }: RecentActivitiesProps) => {
 
   return (
     <div className="space-y-3 text-sm text-muted-foreground">
+      {localActivities.length > 0 && (
+        <div className="flex justify-between items-center">
+          <h3 className="text-foreground font-medium">Ostatnie aktywności</h3>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={clearActivities}
+            className="h-8 px-2"
+          >
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
       {localActivities.length === 0 ? (
         <div className="text-center py-4">
           <div className="text-3xl mb-2">🌱</div>
