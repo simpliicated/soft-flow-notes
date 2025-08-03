@@ -15,12 +15,6 @@ const Index = () => {
   const { user, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
 
-  useEffect(() => {
-    if (!loading && !user) {
-      window.location.href = '/auth';
-    }
-  }, [user, loading]);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-primary flex items-center justify-center">
@@ -30,10 +24,6 @@ const Index = () => {
         </div>
       </div>
     );
-  }
-
-  if (!user) {
-    return null;
   }
 
   const renderCurrentPage = () => {

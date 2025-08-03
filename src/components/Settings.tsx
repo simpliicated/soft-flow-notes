@@ -1,23 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  Settings as SettingsIcon,
-  User,
-  Palette,
-  MessageCircle,
-  Bell,
-  Save,
-  RotateCcw,
-  LogOut
-} from 'lucide-react';
-import APIKeySettings from '@/components/APIKeySettings';
+import { useDataMigration } from '@/hooks/useDataMigration';
+import APIKeySettings from './APIKeySettings';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface UserSettings {
   name: string;
@@ -30,55 +23,66 @@ interface UserSettings {
 }
 
 const Settings = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
+  const { checkLocalData, migrateData, clearLocalData } = useDataMigration();
+
   const [settings, setSettings] = useState<UserSettings>({
-    name: 'Paula',
+    name: '',
     theme: 'light',
     friendlyMode: true,
     showMotivationalQuotes: true,
-    enableNotifications: true,
+    enableNotifications: false,
     language: 'pl',
-    fontSize: 'medium'
+    fontSize: 'medium',
   });
-
-  const [hasChanges, setHasChanges] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // Auth form states
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
 
   // Load settings from localStorage
   useEffect(() => {
-    const savedSettings = localStorage.getItem('zapiszto-user-settings');
+    const savedSettings = localStorage.getItem('user-settings');
     if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+      try {
+        setSettings(JSON.parse(savedSettings));
+      } catch (e) {
+        console.error('Error loading settings:', e);
+      }
     }
   }, []);
 
-  // Track changes
+  // Track changes for unsaved indicator
   useEffect(() => {
-    const savedSettings = localStorage.getItem('zapiszto-user-settings');
+    const savedSettings = localStorage.getItem('user-settings');
     const currentSettingsString = JSON.stringify(settings);
     const savedSettingsString = savedSettings || JSON.stringify({
-      name: 'Paula',
+      name: '',
       theme: 'light',
       friendlyMode: true,
       showMotivationalQuotes: true,
-      enableNotifications: true,
+      enableNotifications: false,
       language: 'pl',
-      fontSize: 'medium'
+      fontSize: 'medium',
     });
     
-    setHasChanges(currentSettingsString !== savedSettingsString);
+    setHasUnsavedChanges(currentSettingsString !== savedSettingsString);
   }, [settings]);
 
   const saveSettings = () => {
-    localStorage.setItem('zapiszto-user-settings', JSON.stringify(settings));
-    setHasChanges(false);
+    localStorage.setItem('user-settings', JSON.stringify(settings));
+    setHasUnsavedChanges(false);
     
-    // Apply theme immediately
+    // Apply theme
     if (settings.theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else if (settings.theme === 'light') {
       document.documentElement.classList.remove('dark');
     } else {
-      // Auto mode
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (prefersDark) {
         document.documentElement.classList.add('dark');
@@ -87,263 +91,406 @@ const Settings = () => {
       }
     }
     
-    // Show feedback
-    alert('Ustawienia zostały zapisane! ✅');
+    toast.success('Ustawienia zostały zapisane!');
   };
 
   const resetSettings = () => {
     const defaultSettings: UserSettings = {
-      name: 'Paula',
+      name: '',
       theme: 'light',
       friendlyMode: true,
       showMotivationalQuotes: true,
-      enableNotifications: true,
+      enableNotifications: false,
       language: 'pl',
-      fontSize: 'medium'
+      fontSize: 'medium',
     };
     setSettings(defaultSettings);
   };
 
-  const updateSetting = <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
+  const updateSetting = <K extends keyof UserSettings>(
+    key: K,
+    value: UserSettings[K]
+  ) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const themes = [
-    { id: 'light', name: 'Jasny', description: 'Klasyczny jasny motyw' },
-    { id: 'dark', name: 'Ciemny', description: 'Łagodny dla oczu' },
-    { id: 'auto', name: 'Automatyczny', description: 'Dopasowuje się do systemu' }
-  ];
+  const cleanupAuthState = () => {
+    // Remove all Supabase auth keys from localStorage
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    // Remove from sessionStorage if in use
+    Object.keys(sessionStorage || {}).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+  };
 
-  const fontSizes = [
-    { id: 'small', name: 'Mały', description: 'Kompaktowy widok' },
-    { id: 'medium', name: 'Średni', description: 'Domyślny rozmiar' },
-    { id: 'large', name: 'Duży', description: 'Łatwiejszy do czytania' }
-  ];
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (authMode === 'signup' && password !== confirmPassword) {
+      toast.error('Hasła nie są identyczne');
+      return;
+    }
+
+    setAuthLoading(true);
+    
+    try {
+      // Clean up existing state
+      cleanupAuthState();
+      
+      // Attempt global sign out
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continue even if this fails
+      }
+
+      if (authMode === 'signup') {
+        const redirectUrl = `${window.location.origin}/`;
+        
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectUrl
+          }
+        });
+        
+        if (error) throw error;
+        
+        if (data.user) {
+          toast.success('Konto zostało utworzone! Sprawdź email aby potwierdzić.');
+          // Migrate data after successful signup
+          setTimeout(async () => {
+            await migrateData();
+          }, 1000);
+        }
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (error) throw error;
+        
+        if (data.user) {
+          toast.success('Zalogowano pomyślnie!');
+          // Migrate data after successful signin
+          setTimeout(async () => {
+            await migrateData();
+          }, 1000);
+          // Force page reload
+          window.location.href = '/';
+        }
+      }
+    } catch (error: any) {
+      console.error('Auth error:', error);
+      toast.error(error.message || 'Błąd podczas logowania');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleMigrateData = async () => {
+    const success = await migrateData();
+    if (success) {
+      // Optionally clear local data after successful migration
+      setTimeout(() => {
+        const shouldClear = window.confirm('Dane zostały przeniesione do chmury. Czy chcesz usunąć kopie lokalne?');
+        if (shouldClear) {
+          clearLocalData();
+        }
+      }, 1000);
+    }
+  };
+
+  const { localData, totalItems } = checkLocalData();
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-gradient-to-br from-purple-50 via-background to-pink-50">
-      {/* Header */}
-      <div className="mb-6 sm:mb-8 pt-2">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2 flex items-center gap-2">
-          <SettingsIcon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-          Ustawienia
-        </h1>
-        <p className="text-muted-foreground mb-4">
-          Dostosuj aplikację do swoich potrzeb 🎨
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">Ustawienia</h1>
+        <p className="text-muted-foreground">
+          Zarządzaj swoim kontem i preferencjami aplikacji
         </p>
-        
-        {hasChanges && (
-          <div className="bg-yellow-100 border border-yellow-200 rounded-xl p-3 mb-4">
-            <p className="text-yellow-800 text-sm">
-              ⚠️ Masz niezapisane zmiany
-            </p>
+        {hasUnsavedChanges && (
+          <div className="bg-orange-100 border border-orange-200 text-orange-800 px-4 py-2 rounded-lg dark:bg-orange-900 dark:border-orange-800 dark:text-orange-200">
+            ⚠️ Masz niezapisane zmiany
           </div>
         )}
       </div>
 
-      <div className="space-y-6">
-        {/* User Info */}
-        {user && (
-          <Card className="card-soft border-primary/20">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <User className="h-5 w-5 text-primary" />
+      <div className="grid gap-6">
+        {user ? (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Informacje o koncie</CardTitle>
+                <CardDescription>Szczegóły Twojego konta użytkownika</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label>Email</Label>
+                  <Input value={user.email || ''} disabled />
                 </div>
                 <div>
-                  <h3 className="font-medium text-foreground">Zalogowany jako</h3>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                  <Label>ID użytkownika</Label>
+                  <Input value={user.id} disabled />
                 </div>
+                
+                {totalItems > 0 && (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-950 dark:border-blue-800">
+                    <h4 className="font-medium text-blue-900 dark:text-blue-100">
+                      Wykryto dane lokalne ({totalItems} elementów)
+                    </h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                      Możesz przenieść swoje dane lokalne do chmury, aby mieć do nich dostęp na wszystkich urządzeniach.
+                    </p>
+                    <Button 
+                      onClick={handleMigrateData}
+                      className="mt-2"
+                      size="sm"
+                    >
+                      Przenieś dane do chmury
+                    </Button>
+                  </div>
+                )}
+                
+                <Button 
+                  onClick={signOut}
+                  variant="destructive"
+                >
+                  Wyloguj się
+                </Button>
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Logowanie / Rejestracja</CardTitle>
+              <CardDescription>
+                {totalItems > 0 
+                  ? `Załóż konto aby synchronizować swoje dane (${totalItems} elementów) między urządzeniami`
+                  : 'Załóż konto aby synchronizować swoje dane między urządzeniami'
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex space-x-2">
+                  <Button
+                    type="button"
+                    variant={authMode === 'signin' ? 'default' : 'outline'}
+                    onClick={() => setAuthMode('signin')}
+                    className="flex-1"
+                  >
+                    Logowanie
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={authMode === 'signup' ? 'default' : 'outline'}
+                    onClick={() => setAuthMode('signup')}
+                    className="flex-1"
+                  >
+                    Rejestracja
+                  </Button>
+                </div>
+                
+                <form onSubmit={handleAuth} className="space-y-4">
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Twój email"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="password">Hasło</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Twoje hasło"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  
+                  {authMode === 'signup' && (
+                    <div>
+                      <Label htmlFor="confirmPassword">Potwierdź hasło</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Powtórz hasło"
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                  )}
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={authLoading || loading}
+                  >
+                    {authLoading ? 'Przetwarzanie...' : 
+                     authMode === 'signup' ? 'Utwórz konto' : 'Zaloguj się'}
+                  </Button>
+                </form>
+                
+                {totalItems > 0 && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg dark:bg-green-950 dark:border-green-800">
+                    <p className="text-sm text-green-700 dark:text-green-300">
+                      💡 Po zalogowaniu Twoje lokalne dane ({totalItems} elementów) zostaną automatycznie przeniesione do chmury!
+                    </p>
+                  </div>
+                )}
               </div>
-              <Button
-                onClick={signOut}
-                variant="outline"
-                className="w-full"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Wyloguj się
-              </Button>
-            </div>
+            </CardContent>
           </Card>
         )}
 
-        {/* Personal Details */}
-        {/* Personal */}
-        <Card className="card-soft">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Dane osobowe</h2>
-            </div>
-            
-            <div className="space-y-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Personalizacja</CardTitle>
+            <CardDescription>Dostosuj aplikację do swoich preferencji</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Jak mam się do Ciebie zwracać?
-                </label>
+                <Label htmlFor="name">Twoje imię</Label>
                 <Input
+                  id="name"
                   value={settings.name}
                   onChange={(e) => updateSetting('name', e.target.value)}
-                  placeholder="Twoje imię..."
-                  className="rounded-xl"
+                  placeholder="Jak mam się do Ciebie zwracać?"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Używam tego imienia w przywitaniach i komunikatach 👋
-                </p>
               </div>
             </div>
-          </div>
+          </CardContent>
         </Card>
 
-        {/* Appearance */}
-        <Card className="card-soft">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Palette className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Wygląd</h2>
+        <Card>
+          <CardHeader>
+            <CardTitle>Wygląd</CardTitle>
+            <CardDescription>Zmień motyw i rozmiar czcionki</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Motyw</Label>
+              <Select value={settings.theme} onValueChange={(value: any) => updateSetting('theme', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Jasny</SelectItem>
+                  <SelectItem value="dark">Ciemny</SelectItem>
+                  <SelectItem value="auto">Automatyczny</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-3 block">Motyw kolorystyczny</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {themes.map(theme => (
-                    <Button
-                      key={theme.id}
-                      variant={settings.theme === theme.id ? 'default' : 'outline'}
-                      onClick={() => updateSetting('theme', theme.id as any)}
-                      className="p-4 h-auto flex-col rounded-xl"
-                    >
-                      <span className="font-medium">{theme.name}</span>
-                      <span className="text-xs opacity-70">{theme.description}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-3 block">Rozmiar czcionki</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {fontSizes.map(fontSize => (
-                    <Button
-                      key={fontSize.id}
-                      variant={settings.fontSize === fontSize.id ? 'default' : 'outline'}
-                      onClick={() => updateSetting('fontSize', fontSize.id as any)}
-                      className="p-4 h-auto flex-col rounded-xl"
-                    >
-                      <span className="font-medium">{fontSize.name}</span>
-                      <span className="text-xs opacity-70">{fontSize.description}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
+            <div className="space-y-2">
+              <Label>Rozmiar czcionki</Label>
+              <Select value={settings.fontSize} onValueChange={(value: any) => updateSetting('fontSize', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Mały</SelectItem>
+                  <SelectItem value="medium">Średni</SelectItem>
+                  <SelectItem value="large">Duży</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </div>
+          </CardContent>
         </Card>
 
-        {/* AI Settings */}
         <APIKeySettings />
 
-        {/* Behavior */}
-        <Card className="card-soft">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Zachowanie aplikacji</h2>
+        <Card>
+          <CardHeader>
+            <CardTitle>Zachowanie aplikacji</CardTitle>
+            <CardDescription>Dostosuj sposób działania aplikacji</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Tryb przyjazny</Label>
+                <p className="text-sm text-muted-foreground">
+                  Ciepłe, motywujące komunikaty
+                </p>
+              </div>
+              <Switch
+                checked={settings.friendlyMode}
+                onCheckedChange={(checked) => updateSetting('friendlyMode', checked)}
+              />
             </div>
             
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <label className="text-sm font-medium block">
-                    Tryb przyjazny 🫶
-                  </label>
-                  <p className="text-xs text-muted-foreground">
-                    Ciepłe, motywujące komunikaty zamiast suchych powiadomień
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.friendlyMode}
-                  onCheckedChange={(checked) => updateSetting('friendlyMode', checked)}
-                />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Cytaty motywacyjne</Label>
+                <p className="text-sm text-muted-foreground">
+                  Codzienne dawki motywacji
+                </p>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <label className="text-sm font-medium block">
-                    Cytaty motywacyjne ✨
-                  </label>
-                  <p className="text-xs text-muted-foreground">
-                    Codzienne dawki motywacji na dashboardzie
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.showMotivationalQuotes}
-                  onCheckedChange={(checked) => updateSetting('showMotivationalQuotes', checked)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <label className="text-sm font-medium block">
-                    Powiadomienia 🔔
-                  </label>
-                  <p className="text-xs text-muted-foreground">
-                    Gentle reminder o zadaniach i nawykach
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.enableNotifications}
-                  onCheckedChange={(checked) => updateSetting('enableNotifications', checked)}
-                />
-              </div>
+              <Switch
+                checked={settings.showMotivationalQuotes}
+                onCheckedChange={(checked) => updateSetting('showMotivationalQuotes', checked)}
+              />
             </div>
-          </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Powiadomienia</Label>
+                <p className="text-sm text-muted-foreground">
+                  Przypomnienia o zadaniach
+                </p>
+              </div>
+              <Switch
+                checked={settings.enableNotifications}
+                onCheckedChange={(checked) => updateSetting('enableNotifications', checked)}
+              />
+            </div>
+          </CardContent>
         </Card>
 
-        {/* Actions */}
-        <Card className="card-soft">
-          <div className="flex gap-3">
-            <Button 
-              onClick={saveSettings}
-              disabled={!hasChanges}
-              className="btn-primary-soft flex-1"
-            >
-              <Save className="h-4 w-4 mr-2" />
+        <Card>
+          <CardHeader>
+            <CardTitle>Akcje</CardTitle>
+          </CardHeader>
+          <CardContent className="flex gap-2">
+            <Button onClick={saveSettings} disabled={!hasUnsavedChanges}>
               Zapisz ustawienia
             </Button>
-            
-            <Button 
-              variant="outline"
-              onClick={resetSettings}
-              className="rounded-xl"
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Resetuj
+            <Button variant="outline" onClick={resetSettings}>
+              Resetuj do domyślnych
             </Button>
-          </div>
-          
-          <p className="text-xs text-muted-foreground text-center mt-3">
-            Zmiany zostaną zastosowane natychmiast po zapisaniu
-          </p>
+          </CardContent>
         </Card>
 
-        {/* App info */}
-        <Card className="card-soft bg-muted/30">
-          <div className="text-center space-y-2">
-            <h3 className="font-semibold">ZapiszTo - Twój zewnętrzny mózg 🧠</h3>
-            <p className="text-sm text-muted-foreground">
-              Wersja 1.0.0 • Stworzone z ❤️ dla osób z ADHD
-            </p>
-            <div className="flex justify-center gap-2 mt-3">
-              <Badge variant="outline" className="rounded-lg">
-                React + TypeScript
-              </Badge>
-              <Badge variant="outline" className="rounded-lg">
-                Tailwind CSS
-              </Badge>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center text-sm text-muted-foreground">
+              <p>ZapiszTo - Twój zewnętrzny mózg 🧠</p>
+              <p>Wersja 1.0.0 • Stworzone z ❤️ dla produktywności</p>
             </div>
-          </div>
+          </CardContent>
         </Card>
       </div>
     </div>
