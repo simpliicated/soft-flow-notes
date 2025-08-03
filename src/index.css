@@ -139,6 +139,122 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* Color theme variants */
+  .theme-blue {
+    --background: 210 100% 98%;
+    --foreground: 210 80% 15%;
+    --card: 210 100% 97%;
+    --card-foreground: 210 80% 15%;
+    --primary: 210 100% 70%;
+    --primary-foreground: 210 100% 95%;
+    --primary-soft: 210 100% 95%;
+    --secondary: 210 30% 92%;
+    --secondary-foreground: 210 80% 25%;
+    --secondary-soft: 210 30% 94%;
+    --muted: 210 30% 90%;
+    --muted-foreground: 210 30% 45%;
+    --accent: 200 100% 80%;
+    --accent-foreground: 200 100% 20%;
+    --accent-soft: 200 100% 95%;
+    --border: 210 30% 85%;
+    --input: 210 30% 88%;
+    --ring: 210 100% 70%;
+    --gradient-primary: linear-gradient(135deg, hsl(210, 100%, 95%), hsl(200, 100%, 95%));
+    --gradient-hero: linear-gradient(135deg, hsl(210, 100%, 70%), hsl(200, 100%, 80%));
+  }
+
+  .theme-pink {
+    --background: 320 100% 98%;
+    --foreground: 320 80% 15%;
+    --card: 320 100% 97%;
+    --card-foreground: 320 80% 15%;
+    --primary: 320 100% 70%;
+    --primary-foreground: 320 100% 95%;
+    --primary-soft: 320 100% 95%;
+    --secondary: 320 30% 92%;
+    --secondary-foreground: 320 80% 25%;
+    --secondary-soft: 320 30% 94%;
+    --muted: 320 30% 90%;
+    --muted-foreground: 320 30% 45%;
+    --accent: 310 100% 80%;
+    --accent-foreground: 310 100% 20%;
+    --accent-soft: 310 100% 95%;
+    --border: 320 30% 85%;
+    --input: 320 30% 88%;
+    --ring: 320 100% 70%;
+    --gradient-primary: linear-gradient(135deg, hsl(320, 100%, 95%), hsl(310, 100%, 95%));
+    --gradient-hero: linear-gradient(135deg, hsl(320, 100%, 70%), hsl(310, 100%, 80%));
+  }
+
+  .theme-green {
+    --background: 120 100% 98%;
+    --foreground: 120 80% 15%;
+    --card: 120 100% 97%;
+    --card-foreground: 120 80% 15%;
+    --primary: 120 100% 60%;
+    --primary-foreground: 120 100% 95%;
+    --primary-soft: 120 100% 95%;
+    --secondary: 120 30% 92%;
+    --secondary-foreground: 120 80% 25%;
+    --secondary-soft: 120 30% 94%;
+    --muted: 120 30% 90%;
+    --muted-foreground: 120 30% 45%;
+    --accent: 110 100% 70%;
+    --accent-foreground: 110 100% 20%;
+    --accent-soft: 110 100% 95%;
+    --border: 120 30% 85%;
+    --input: 120 30% 88%;
+    --ring: 120 100% 60%;
+    --gradient-primary: linear-gradient(135deg, hsl(120, 100%, 95%), hsl(110, 100%, 95%));
+    --gradient-hero: linear-gradient(135deg, hsl(120, 100%, 60%), hsl(110, 100%, 70%));
+  }
+
+  .theme-purple {
+    --background: 280 100% 98%;
+    --foreground: 280 80% 15%;
+    --card: 280 100% 97%;
+    --card-foreground: 280 80% 15%;
+    --primary: 280 100% 70%;
+    --primary-foreground: 280 100% 95%;
+    --primary-soft: 280 100% 95%;
+    --secondary: 280 30% 92%;
+    --secondary-foreground: 280 80% 25%;
+    --secondary-soft: 280 30% 94%;
+    --muted: 280 30% 90%;
+    --muted-foreground: 280 30% 45%;
+    --accent: 270 100% 80%;
+    --accent-foreground: 270 100% 20%;
+    --accent-soft: 270 100% 95%;
+    --border: 280 30% 85%;
+    --input: 280 30% 88%;
+    --ring: 280 100% 70%;
+    --gradient-primary: linear-gradient(135deg, hsl(280, 100%, 95%), hsl(270, 100%, 95%));
+    --gradient-hero: linear-gradient(135deg, hsl(280, 100%, 70%), hsl(270, 100%, 80%));
+  }
+
+  .theme-orange {
+    --background: 30 100% 98%;
+    --foreground: 30 80% 15%;
+    --card: 30 100% 97%;
+    --card-foreground: 30 80% 15%;
+    --primary: 30 100% 65%;
+    --primary-foreground: 30 100% 95%;
+    --primary-soft: 30 100% 95%;
+    --secondary: 30 30% 92%;
+    --secondary-foreground: 30 80% 25%;
+    --secondary-soft: 30 30% 94%;
+    --muted: 30 30% 90%;
+    --muted-foreground: 30 30% 45%;
+    --accent: 25 100% 75%;
+    --accent-foreground: 25 100% 20%;
+    --accent-soft: 25 100% 95%;
+    --border: 30 30% 85%;
+    --input: 30 30% 88%;
+    --ring: 30 100% 65%;
+    --gradient-primary: linear-gradient(135deg, hsl(30, 100%, 95%), hsl(25, 100%, 95%));
+    --gradient-hero: linear-gradient(135deg, hsl(30, 100%, 65%), hsl(25, 100%, 75%));
+  }
 }
 
 @layer base {

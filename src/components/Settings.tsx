@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 
 interface UserSettings {
   name: string;
-  theme: 'light' | 'dark' | 'auto';
+  theme: 'light' | 'dark' | 'auto' | 'blue' | 'pink' | 'green' | 'purple' | 'orange';
   friendlyMode: boolean;
   showMotivationalQuotes: boolean;
   enableNotifications: boolean;
@@ -78,17 +78,23 @@ const Settings = () => {
     setHasUnsavedChanges(false);
     
     // Apply theme
+    const body = document.documentElement;
+    
+    // Remove all theme classes
+    body.classList.remove('dark', 'theme-blue', 'theme-pink', 'theme-green', 'theme-purple', 'theme-orange');
+    
     if (settings.theme === 'dark') {
-      document.documentElement.classList.add('dark');
+      body.classList.add('dark');
     } else if (settings.theme === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
+      // Light theme is default, no additional classes needed
+    } else if (settings.theme === 'auto') {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (prefersDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
+        body.classList.add('dark');
       }
+    } else {
+      // Color themes
+      body.classList.add(`theme-${settings.theme}`);
     }
     
     toast.success('Ustawienia zostały zapisane!');
@@ -401,6 +407,11 @@ const Settings = () => {
                   <SelectItem value="light">Jasny</SelectItem>
                   <SelectItem value="dark">Ciemny</SelectItem>
                   <SelectItem value="auto">Automatyczny</SelectItem>
+                  <SelectItem value="blue">🌊 Niebieski</SelectItem>
+                  <SelectItem value="pink">🌸 Różowy</SelectItem>
+                  <SelectItem value="green">🌿 Zielony</SelectItem>
+                  <SelectItem value="purple">🔮 Fioletowy</SelectItem>
+                  <SelectItem value="orange">🍊 Pomarańczowy</SelectItem>
                 </SelectContent>
               </Select>
             </div>
