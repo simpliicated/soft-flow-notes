@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Brain, Send, Archive, ArrowRight, Trash2, Lightbulb, Copy, Check } from 'lucide-react';
+import { UnifiedChip } from '@/components/ui/unified-chip';
+import { Brain, Archive, Trash2, Lightbulb, Copy, Check } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
+import { AnimatedFeedback } from '@/components/ui/animated-feedback';
 
 interface BrainDumpEntry {
   id: string;
@@ -18,6 +19,7 @@ const BrainDump = () => {
   const [entries, setEntries] = useState<BrainDumpEntry[]>([]);
   const [currentThought, setCurrentThought] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
   const { addActivity } = useActivityLogger();
 
   // Load entries from localStorage
@@ -45,6 +47,9 @@ const BrainDump = () => {
 
     setEntries(prev => [newEntry, ...prev]);
     setCurrentThought('');
+    
+    // Show feedback
+    setShowFeedback(true);
     
     // Log activity
     addActivity(`Dodano myśl: "${currentThought.slice(0, 50)}${currentThought.length > 50 ? '...' : ''}"`, 'brain-dump');
@@ -97,7 +102,13 @@ const BrainDump = () => {
   const randomMessage = encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-gradient-to-br from-accent-soft via-background to-accent-soft/50">
+    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-[var(--gradient-page)]">
+      <AnimatedFeedback
+        show={showFeedback}
+        message="Wrzutka zapisana! 🧠⚡"
+        emoji="💭"
+        onComplete={() => setShowFeedback(false)}
+      />
       {/* Header */}
       <div className="mb-6 sm:mb-8 pt-2">
         <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2 flex items-center gap-2">
@@ -107,7 +118,7 @@ const BrainDump = () => {
         <p className="text-muted-foreground mb-4">
           Miejsce na wszystko, co kłębi Ci się w głowie
         </p>
-        <div className="bg-gradient-accent rounded-2xl p-4 border-0">
+        <div className="bg-[var(--gradient-accent)] rounded-2xl p-4 border border-accent/20">
           <p className="text-sm text-foreground font-medium">
             💡 {randomMessage}
           </p>
@@ -115,7 +126,7 @@ const BrainDump = () => {
       </div>
 
       {/* Quick input */}
-      <Card className="card-soft mb-8 bg-gradient-mood border-0">
+      <Card className="card-soft mb-8 bg-[var(--gradient-mood)]">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Lightbulb className="h-5 w-5" />
@@ -137,7 +148,7 @@ const BrainDump = () => {
               disabled={!currentThought.trim()}
               className="btn-primary-soft"
             >
-              <Send className="h-4 w-4 mr-2" />
+              <Lightbulb className="h-4 w-4 mr-2" />
               Wrzuć to!
             </Button>
           </div>
@@ -150,9 +161,9 @@ const BrainDump = () => {
           <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
             📥 Do posortowania
             {unsortedEntries.length > 0 && (
-              <Badge variant="secondary" className="rounded-lg">
+              <UnifiedChip variant="secondary" size="sm">
                 {unsortedEntries.length}
-              </Badge>
+              </UnifiedChip>
             )}
           </h2>
         </div>
@@ -167,7 +178,7 @@ const BrainDump = () => {
         ) : (
           <div className="space-y-4">
             {unsortedEntries.map(entry => (
-              <Card key={entry.id} className="card-soft bg-primary-soft/30 border-primary/20 group">
+              <Card key={entry.id} className="card-soft bg-[var(--gradient-primary)] border-primary/20 group">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
                     <p className="text-foreground leading-relaxed mb-2">
@@ -222,9 +233,9 @@ const BrainDump = () => {
         <div>
           <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
             ✅ Posortowane
-            <Badge variant="outline" className="rounded-lg">
+            <UnifiedChip variant="muted" size="sm">
               {sortedEntries.length}
-            </Badge>
+            </UnifiedChip>
           </h2>
           <div className="space-y-3">
             {sortedEntries.map(entry => (

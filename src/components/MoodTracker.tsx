@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Heart, Calendar, TrendingUp, Smile } from 'lucide-react';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
+import { AnimatedFeedback } from '@/components/ui/animated-feedback';
 
 interface MoodEntry {
   id: string;
@@ -29,6 +30,8 @@ const MoodTracker = () => {
   const [selectedMood, setSelectedMood] = useState<typeof moodOptions[0] | null>(null);
   const [moodNote, setMoodNote] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
   const { addActivity } = useActivityLogger();
 
   // Load mood entries from localStorage
@@ -61,6 +64,10 @@ const MoodTracker = () => {
     setSelectedMood(null);
     setMoodNote('');
     setShowAddForm(false);
+    
+    // Show animated feedback
+    setFeedbackMessage(`Super! Zapisałam Twój nastrój 💖`);
+    setShowFeedback(true);
     
     // Log activity
     addActivity(`Zapisano nastrój: ${selectedMood.name} ${selectedMood.emoji}`, 'mood');
@@ -106,7 +113,13 @@ const MoodTracker = () => {
   ];
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-gradient-to-br from-mood-happy via-background to-mood-calm/50">
+    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-[var(--gradient-page)]">
+      <AnimatedFeedback
+        show={showFeedback}
+        message={feedbackMessage}
+        emoji="💖"
+        onComplete={() => setShowFeedback(false)}
+      />
       {/* Header */}
       <div className="mb-6 sm:mb-8 pt-2">
         <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2 flex items-center gap-2">
@@ -119,7 +132,7 @@ const MoodTracker = () => {
       </div>
 
       {/* Today's mood */}
-      <Card className="card-soft mb-8 bg-gradient-mood border-0">
+      <Card className="card-soft mb-8 bg-[var(--gradient-mood)]">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-foreground mb-4">
             Jak się dziś czujesz?
@@ -180,8 +193,8 @@ const MoodTracker = () => {
                   onClick={() => setSelectedMood(mood)}
                   className={`p-3 sm:p-4 rounded-2xl border-2 transition-all hover:scale-105 touch-target ${
                     selectedMood?.name === mood.name
-                      ? 'border-primary ring-2 ring-primary ring-offset-2'
-                      : 'border-border hover:border-primary/50'
+                      ? 'border-primary ring-2 ring-primary ring-offset-2 bg-[var(--gradient-primary)]'
+                      : 'border-border hover:border-primary/50 hover:bg-[var(--gradient-soft)]'
                   }`}
                 >
                   <div className="text-3xl sm:text-4xl mb-1 sm:mb-2">{mood.emoji}</div>

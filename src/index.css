@@ -54,15 +54,19 @@
     --input: 240 6% 96%;
     --ring: 221 83% 53%;
 
-    /* Enhanced gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(221 83% 98%), hsl(221 83% 93%));
-    --gradient-secondary: linear-gradient(135deg, hsl(180 84% 96%), hsl(200 90% 94%));
-    --gradient-accent: linear-gradient(135deg, hsl(14 90% 96%), hsl(30 100% 94%));
-    --gradient-mood: linear-gradient(135deg, hsl(300 100% 96%), hsl(280 90% 95%), hsl(260 80% 94%));
+    /* Enhanced gradients - Softer, more unified */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.05));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary) / 0.1), hsl(var(--secondary) / 0.05));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent) / 0.1), hsl(var(--accent) / 0.05));
+    --gradient-mood: linear-gradient(135deg, hsl(var(--mood-happy) / 0.1), hsl(var(--mood-calm) / 0.05));
+    --gradient-soft: linear-gradient(145deg, hsl(var(--background)), hsl(var(--muted) / 0.3));
+    --gradient-page: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted) / 0.1));
     --gradient-hero: linear-gradient(135deg, hsl(221 83% 53%), hsl(180 84% 50%));
 
-    /* Enhanced shadows */
-    --shadow-soft: 0 4px 20px hsl(221 83% 53% / 0.08);
+    /* Enhanced shadows - Unified and softer */
+    --shadow-soft: 0 2px 8px -2px hsl(var(--foreground) / 0.05);
+    --shadow-medium: 0 4px 12px -4px hsl(var(--foreground) / 0.08);
+    --shadow-strong: 0 8px 24px -8px hsl(var(--foreground) / 0.12);
     --shadow-card: 0 2px 12px hsl(240 10% 15% / 0.06);
     --shadow-button: 0 2px 8px hsl(221 83% 53% / 0.15);
     --shadow-elevated: 0 8px 32px hsl(221 83% 53% / 0.12);
@@ -274,21 +278,13 @@
 }
 
 @layer components {
-  /* Enhanced card styles */
+  /* Enhanced card styles - Unified system */
   .card-soft {
-    @apply rounded-2xl p-6 transition-all duration-300;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: var(--shadow-card);
+    @apply backdrop-blur-sm bg-card/60 border border-border/30 shadow-soft rounded-2xl p-6 transition-all duration-300;
   }
 
   .card-elevated {
-    @apply rounded-2xl p-6 transition-all duration-300;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: var(--shadow-elevated);
+    @apply backdrop-blur-md bg-card/80 border border-border/20 shadow-medium rounded-2xl p-6 transition-all duration-300;
   }
 
   /* Mobile touch targets */
@@ -318,13 +314,11 @@
   }
 
   .btn-primary-soft {
-    @apply btn-soft bg-primary text-primary-foreground;
+    @apply btn-soft bg-primary text-primary-foreground hover:bg-primary/90 shadow-soft;
   }
 
   .btn-secondary-soft {
-    @apply btn-soft;
-    background: hsl(var(--secondary));
-    color: hsl(var(--secondary-foreground));
+    @apply btn-soft bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 hover:border-secondary/30;
   }
 
   .btn-accent-soft {

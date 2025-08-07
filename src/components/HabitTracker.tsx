@@ -192,7 +192,7 @@ const HabitTracker = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-gradient-to-br from-pink-50 via-rose-25 to-pink-100 dark:from-pink-900/10 dark:via-rose-900/5 dark:to-pink-900/15">
+    <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24 bg-[var(--gradient-page)]">
       <div className="mb-6 sm:mb-8 pt-2">
         <h1 className="text-2xl sm:text-3xl font-lexend font-semibold text-foreground mb-2">
           Nawyki 🌟
@@ -207,28 +207,28 @@ const HabitTracker = () => {
 
       {/* Progress & Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <Card className="card-soft border-0 bg-gradient-to-br from-pink-200 to-rose-200 text-pink-800 shadow-lg">
-          <div className="text-center">
-            <div className="text-2xl font-bold mb-1">{completedCount}/{habits.length}</div>
-            <p className="text-pink-700 text-sm">Dzisiaj ukończone</p>
+        <Card className="card-soft bg-[var(--gradient-primary)] border-primary/20">
+          <div className="text-center p-4">
+            <div className="text-2xl font-bold mb-1 text-foreground">{completedCount}/{habits.length}</div>
+            <p className="text-muted-foreground text-sm">Dzisiaj ukończone</p>
           </div>
         </Card>
         
-        <Card className="card-soft border-0 bg-gradient-to-br from-rose-200 to-pink-300 text-rose-800 shadow-lg">
-          <div className="text-center">
-            <div className="text-2xl font-bold mb-1">
+        <Card className="card-soft bg-[var(--gradient-secondary)] border-secondary/20">
+          <div className="text-center p-4">
+            <div className="text-2xl font-bold mb-1 text-foreground">
               {Math.max(...habits.map(h => h.streak || 0), 0)}
             </div>
-            <p className="text-rose-700 text-sm">Najdłuższa seria</p>
+            <p className="text-muted-foreground text-sm">Najdłuższa seria</p>
           </div>
         </Card>
         
-        <Card className="card-soft border-0 bg-gradient-to-br from-pink-300 to-rose-300 text-pink-800 shadow-lg">
-          <div className="text-center">
-            <div className="text-2xl font-bold mb-1">
+        <Card className="card-soft bg-[var(--gradient-accent)] border-accent/20">
+          <div className="text-center p-4">
+            <div className="text-2xl font-bold mb-1 text-foreground">
               {Math.round(habits.reduce((acc, h) => acc + getWeeklyCompletion(h), 0) / habits.length)}%
             </div>
-            <p className="text-pink-700 text-sm">Tygodniowy wynik</p>
+            <p className="text-muted-foreground text-sm">Tygodniowy wynik</p>
           </div>
         </Card>
       </div>
@@ -242,10 +242,10 @@ const HabitTracker = () => {
           return (
             <Card 
               key={habit.id}
-              className={`card-soft border-0 transition-all duration-300 hover:shadow-xl hover:scale-105 relative group ${
+              className={`card-soft transition-all duration-300 hover:shadow-medium hover:scale-105 relative group cursor-pointer ${
                 habit.completed 
-                  ? 'bg-gradient-to-br from-pink-300 to-rose-400 text-pink-800 shadow-lg transform scale-105' 
-                  : 'bg-white dark:bg-slate-800 hover:bg-gradient-to-br hover:from-pink-50 hover:to-rose-50 dark:hover:from-pink-900/20 dark:hover:to-rose-900/20'
+                  ? 'bg-[var(--gradient-primary)] border-primary/30 shadow-medium transform scale-105' 
+                  : 'bg-card hover:bg-[var(--gradient-soft)]'
               }`}
             >
               {/* Action buttons */}
@@ -279,8 +279,8 @@ const HabitTracker = () => {
                   <div className={`
                     p-3 rounded-full transition-all duration-200
                     ${habit.completed 
-                      ? 'bg-white/30 text-pink-800' 
-                      : 'bg-gradient-to-br from-pink-400 to-rose-500 text-white'
+                      ? 'bg-primary/20 text-primary' 
+                      : 'bg-primary text-primary-foreground'
                     }
                   `}>
                     {habit.completed ? (
@@ -290,14 +290,10 @@ const HabitTracker = () => {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className={`font-lexend font-medium ${
-                      habit.completed ? 'text-pink-800' : 'text-foreground'
-                    }`}>
+                    <h3 className="font-lexend font-medium text-foreground">
                       {habit.name}
                     </h3>
-                    <div className={`flex items-center space-x-4 text-sm ${
-                      habit.completed ? 'text-pink-700' : 'text-muted-foreground'
-                    }`}>
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                       <span>🔥 {habit.streak || 0} dni z rzędu</span>
                       <span>📊 {weeklyCompletion}% w tygodniu</span>
                     </div>
@@ -305,13 +301,9 @@ const HabitTracker = () => {
                 </div>
                 
                 {/* Progress bar */}
-                <div className="w-full bg-pink-100 dark:bg-pink-900/20 rounded-full h-2">
+                <div className="w-full bg-muted/30 rounded-full h-2">
                   <div 
-                    className={`h-2 rounded-full transition-all duration-500 ${
-                      habit.completed 
-                        ? 'bg-white/60' 
-                        : 'bg-gradient-to-r from-pink-400 to-rose-500'
-                    }`}
+                    className="h-2 rounded-full transition-all duration-500 bg-primary"
                     style={{ width: `${weeklyCompletion}%` }}
                   ></div>
                 </div>
@@ -323,11 +315,11 @@ const HabitTracker = () => {
 
       {/* Add new habit */}
       {!isAddingHabit ? (
-        <Card className="border-2 border-dashed border-pink-200 dark:border-pink-700/50 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/10 dark:to-rose-900/10 hover:border-pink-300 transition-all duration-300">
+        <Card className="border-2 border-dashed border-border/50 bg-[var(--gradient-soft)] hover:border-primary/50 transition-all duration-300">
           <Button 
             variant="ghost" 
             onClick={() => setIsAddingHabit(true)}
-            className="w-full h-16 text-pink-600 hover:text-pink-700 hover:bg-pink-100 transition-colors touch-target"
+            className="w-full h-16 text-primary hover:text-primary/80 hover:bg-primary/5 transition-colors touch-target"
           >
             <Plus className="h-5 w-5 mr-2" />
             Dodaj nowy nawyk

@@ -3,10 +3,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Tag, Edit3, Trash2, Heart } from 'lucide-react';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
-
+import { UnifiedChip } from '@/components/ui/unified-chip';
 import { toast } from '@/hooks/use-toast';
 
 interface Note {
@@ -165,7 +164,7 @@ const Notes = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-6xl mx-auto pb-24 bg-gradient-to-br from-purple-50 via-purple-25 to-purple-100 dark:from-purple-900/10 dark:via-purple-900/5 dark:to-purple-900/15">
+    <div className="min-h-screen p-4 sm:p-6 max-w-6xl mx-auto pb-24 bg-[var(--gradient-page)]">
       {/* Header */}
       <div className="mb-6 sm:mb-8 pt-2">
         <h1 className="text-2xl sm:text-3xl font-semibold text-foreground mb-2">
@@ -247,16 +246,15 @@ const Notes = () => {
               </p>
               <div className="flex flex-wrap gap-2">
                 {predefinedTags.map(tag => (
-                  <Badge
+                  <UnifiedChip
                     key={tag.name}
-                    variant={editNote.tags.includes(tag.name) ? "default" : "outline"}
-                    className={`cursor-pointer rounded-xl transition-colors ${
-                      editNote.tags.includes(tag.name) ? 'bg-primary text-primary-foreground' : ''
-                    }`}
+                    variant={editNote.tags.includes(tag.name) ? "default" : "muted"}
+                    interactive
                     onClick={() => toggleTag(tag.name)}
+                    icon={<Tag className="h-3 w-3" />}
                   >
                     {tag.name}
-                  </Badge>
+                  </UnifiedChip>
                 ))}
               </div>
             </div>
@@ -320,16 +318,15 @@ const Notes = () => {
               </p>
               <div className="flex flex-wrap gap-2">
                 {predefinedTags.map(tag => (
-                  <Badge
+                  <UnifiedChip
                     key={tag.name}
-                    variant={newNote.tags.includes(tag.name) ? "default" : "outline"}
-                    className={`cursor-pointer rounded-xl transition-colors ${
-                      newNote.tags.includes(tag.name) ? 'bg-primary text-primary-foreground' : ''
-                    }`}
+                    variant={newNote.tags.includes(tag.name) ? "default" : "muted"}
+                    interactive
                     onClick={() => toggleTag(tag.name)}
+                    icon={<Tag className="h-3 w-3" />}
                   >
                     {tag.name}
-                  </Badge>
+                  </UnifiedChip>
                 ))}
               </div>
             </div>
@@ -418,9 +415,9 @@ const Notes = () => {
                 {note.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {note.tags.map(tag => (
-                      <Badge key={tag} variant="secondary" className="text-xs rounded-lg">
+                      <UnifiedChip key={tag} variant="secondary" size="sm">
                         {tag}
-                      </Badge>
+                      </UnifiedChip>
                     ))}
                   </div>
                 )}

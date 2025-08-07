@@ -165,25 +165,35 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
       {planItems.map((item) => (
         <div
           key={item.id}
-          className={`flex items-center p-3 rounded-lg bg-gradient-to-r ${getTimeColor(item)} group transition-all duration-200 ${
+          className={`flex items-center gap-3 p-4 rounded-xl bg-card hover:bg-[var(--gradient-soft)] border border-border/30 hover:border-primary/30 transition-all group hover:shadow-soft cursor-pointer ${
             item.completed ? 'opacity-60' : ''
           }`}
         >
           <button
             onClick={() => toggleItem(item.id)}
-            className={`w-3 h-3 rounded-full mr-3 flex-shrink-0 transition-all duration-200 ${
-              item.completed 
-                ? 'bg-gradient-to-r from-green-400 to-emerald-500' 
-                : `bg-gradient-to-r ${getTimeDot(item)}`
-            }`}
-          />
-          <span 
-            className={`text-sm sm:text-base flex-1 ${
-              item.completed ? 'line-through text-muted-foreground' : 'text-foreground'
+            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 ${
+              item.completed
+                ? 'bg-primary border-primary text-primary-foreground'
+                : 'border-border hover:border-primary hover:bg-primary/10'
             }`}
           >
-            {item.text} {item.time && `☕`}
-          </span>
+            {item.completed && <Check className="h-4 w-4" />}
+          </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              {item.time && (
+                <span className="text-xs px-2 py-1 rounded-lg font-medium bg-primary/10 text-primary border border-primary/20">
+                  {item.time}
+                </span>
+              )}
+              <span className={`text-sm font-medium transition-all ${item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                {item.text}
+              </span>
+              {item.source && (
+                <span className="w-2 h-2 rounded-full bg-primary/50" />
+              )}
+            </div>
+          </div>
           {(item.source === 'manual' || !item.source) && (
             <button
               onClick={() => deleteItem(item.id)}
@@ -196,27 +206,27 @@ const DailyPlan = ({ onAddActivity }: DailyPlanProps) => {
       ))}
       
       {isAdding ? (
-        <div className="flex gap-2 p-3 bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg">
+        <div className="flex gap-2 p-4 bg-[var(--gradient-primary)] border border-primary/20 rounded-xl">
           <Input
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
             placeholder="Nowy punkt planu..."
-            className="flex-1 border-0 bg-white/50 dark:bg-slate-800/50"
+            className="flex-1 border-border/50 bg-background/80 rounded-xl"
             onKeyPress={(e) => e.key === 'Enter' && addPlanItem()}
             autoFocus
           />
-          <Button size="sm" onClick={addPlanItem} className="bg-blue-500 hover:bg-blue-600">
-            <Check className="h-3 w-3" />
+          <Button size="sm" onClick={addPlanItem} className="btn-primary-soft">
+            <Check className="h-4 w-4" />
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>
-            <X className="h-3 w-3" />
+          <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)} className="hover:bg-background/50">
+            <X className="h-4 w-4" />
           </Button>
         </div>
       ) : (
         <Button
           variant="ghost"
           onClick={() => setIsAdding(true)}
-          className="w-full justify-start text-muted-foreground hover:text-foreground"
+          className="w-full justify-start text-primary hover:text-primary/80 hover:bg-primary/5 transition-colors p-4 rounded-xl border-2 border-dashed border-border/50 hover:border-primary/50"
         >
           <Plus className="h-4 w-4 mr-2" />
           Dodaj punkt do planu
